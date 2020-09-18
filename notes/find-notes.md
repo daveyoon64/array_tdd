@@ -146,12 +146,12 @@ returns
 	first value that passes callback else undefined
 
 ## requirements
-it should go through the array and return the first value that passes the callback
-it should go through the array and return undefined if no element passes the callback
-if array has holes, it should go through the array and return the first value that passes the callback
+- it should go through the array and return the first value that passes the callback
+- it should go through the array and return undefined if no element passes the callback
+- if array has holes, it should go through the array and return the first value that passes the callback
 
-after find starts, if the callback mutates the array, the new values should be ignored
-after find starts, it the callback adds elements to the array, the new pushed value should be ignored
+- after find starts, if the callback mutates the array, the new values should be ignored
+- after find starts, it the callback adds elements to the array, the new pushed value should be ignored
 
-if an element already exists, is mutated by the callback, and is unvisited, it should find the mutated value
-if an element that exists is deleted, it should still visit that element
+- if an element already exists, is mutated by the callback, and is unvisited, it should find the mutated value
+- if an element that exists is deleted, it should still visit that element
