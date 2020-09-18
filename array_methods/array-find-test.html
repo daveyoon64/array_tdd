@@ -1,0 +1,140 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// prototype implementation
+// function find(array, callback, optionalThis) {
+//   var firstFoundNumber = 0;
+//   for (var i = 0; i < array.length; i++) {
+//     firstFoundNumber = callback(array[i], index, originalArray);
+//     if (firstFoundNumber) {
+//       return firstFoundNumber;
+//     }
+//   }
+// }
+
+// function signature
+// find(array, callback[, initialValues], optionalThis)
+
+// callback parameters
+// 	currentElement
+// 	currentIndex
+// 	originalArray
+
+// returns
+// 	first value that passes callback else undefined
+
+function find(array, callback, optionalThis) {
+  var testValue;
+  var originalCallback = callback;
+  var originalArrayLength = array.length; // this prevents pushed elements from passing a callback's condition
+
+  if (optionalThis) {
+    originalCallback = originalCallback.bind(optionalThis);
+  }
+
+  for (var i = 0; i < originalArrayLength; i++) {
+    testValue = originalCallback(array[i], i, array);
+    if (testValue) {
+      return testValue
+    }
+  }
+  return testValue;
+}
+
+tests({
+  'it should run the callback array.length times': function() {
+    var timesRun = 0;
+    find([1, 2, 3], function() {
+      timesRun++;
+    })
+    eq(timesRun, 3);
+  },
+  'it should return the currentElement as the 1st argument of the callback': function() {
+    find([1], function(number) {
+      eq(number, 1);
+    })
+  },
+  'it should return the currentIndex as the 2nd argument of the callback': function() {
+    find([1], function(numbber, currentIndex) {
+      eq(currentIndex, 0);
+    })
+  },
+  'it should return the originalArray as the 3rd argument of the callback': function() {
+    var testArray = [1];
+    find(testArray, function(number, currentIndex, originalArray) {
+      eq(testArray, originalArray);
+    })
+  },
+  'it should accept an optional this as the third argument': function() {
+    find([1, 2, 3], function() {
+      eq(this.name, 'Superman');
+    }, {name: 'Superman'})
+  },
+  'it should go through the array and return the first value that passes the callback': function() {
+    var testNumber = find([1, 2, 3], function(number) {
+      if (number > 1) { return number; }
+    })
+    eq(testNumber, 2);
+  },
+  'it should go through the array and return undefined if no element passes the callback': function() {
+    var testNumber = find([], function(number) {
+      if (number > 1) { return number; }
+    })
+    eq(testNumber, undefined);
+  },
+  'if array has holes, it should go through the array and return the first value that passes the callback': function() {
+    var testNumber = find([,,,,,,,1,,,,,,2, 3], function(number) {
+      if (number > 1) { return number; }
+    })
+    eq(testNumber, 2);
+  },
+  'after find starts, if the callback mutates the array, the new values should be ignored': function() {
+    var array = [1, 3, 5, 7, 9];
+    var testValue = find(array, function(number, index) {
+      array[index] *= 2;
+      if (number > 17) {
+        return number;
+      }
+    })
+    eq(testValue, undefined);
+  },
+  'after find starts, it the callback adds elements to the array, the new pushed value should be ignored': function() {
+    var array = [1, 3, 5, 7, 9]
+    var testValue = find(array, function(number, index) {
+      if (index === 0) {
+        array.push(25);
+      }
+      if (number > 17) {
+        return number;
+      }
+    })
+    eq(testValue, undefined);
+    eq(array[5], 25); // this checks that the array was actually modified
+  },
+  'if an element already exists, is mutated by the callback, and is unvisited, it should find the mutated value': function() {
+    var array = [1, 9]
+    var testNumber = find(array, function(number, index) {
+      if (index === 0) {
+        array[1] = 18;
+      }
+      if (number > 17) {
+        return number;
+      }
+    })
+    eq(testNumber, 18);
+  },
+  'if an element that exists is deleted, it should still visit that element': function() {
+    var array = [1, 3, 5, 7, 9]
+    var testNumber = find(array, function(number, index) {
+      if (index === 0) {
+        delete array[3];
+      }
+      if (number > 8) {
+        return number;
+      }
+    })
+    eq(testNumber, 9);
+    eq(array[3], undefined) // this ensures the test array was actually modified
+  },
+});
+</script>
