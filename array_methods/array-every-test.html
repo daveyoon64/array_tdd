@@ -1,0 +1,137 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// Prototype Implementation
+// function every(array, callback) {
+//   var isArrayTrue = true; 
+//   for (var i = 0; i < array.length; i++) {
+//     isArrayTrue = callback();
+//     if (!isArrayTrue) {
+//       return isArrayTrue;
+//     }
+//   }
+//   return isArrayTrue;
+// }
+
+// My function declaration
+// every(array, callback, optionalThis)
+
+// Callback parameters
+// element
+// currentIndex
+// originalArray
+
+// Return 
+// Returns true if all elements pass, else false
+
+function every(array, callback, optionalThis) {
+  var originalCallback = callback;
+  var originalArrayLength = array.length;
+  var testBoolean = true;
+
+  if (optionalThis) {
+    originalCallback = originalCallback.bind(optionalThis);
+  }
+  for (var i = 0; i < originalArrayLength; i++) {
+    if (!array[i]) {
+      continue;
+    } else {
+      testBoolean = originalCallback(array[i], i , array);
+      if (!testBoolean) { return false; }
+    }
+  }
+  return testBoolean;
+}
+
+tests({
+  'it should take the ith position of the array as the 1st argument of the callback': function() {
+    every([1], function(number) {
+      eq(number, 1);
+    })
+  },
+  'it should take the index position as the 2nd argument of the callback': function() {
+    every([1], function(number, index) {
+      eq(index, 0);
+    })
+  },
+  'it should take the original array as the 3rd argument of the callback': function() {
+    var testArray = [1];
+    every(testArray, function(number, index, originalArray) {
+      eq(testArray, originalArray);
+    })
+  },
+  'it should take an optional this as the third argument': function() {
+    every([1, 2, 3], function() {
+      eq(this.name, 'Ginsberg');
+    }, {name: 'Ginsberg'})
+  },
+  'if callbacks condition passes for all elements, it should return true': function() {
+    var testBool = every([1, 2, 3], function(number, index) {
+      if (number > 0) { return true; }
+    })
+    eq(testBool, true);
+  },
+  'if callbacks condition fails for any element, it should return false': function() {
+    var testBool = every([1, 2, 3], function(number) {
+      if (number > 1) { return true; }
+    })
+    eq(testBool, false);
+  },
+  'if the array is empty, it should return true': function() {
+    var testBool = every([], function(number, index) {
+      if (number > 5) { return true; }
+    })
+    eq(testBool, true);
+  },
+  'if array has undefined indexes (holes), it should not run the callback': function() {
+    var timeCallbackCalled = 0;
+    var testBool = every([,,,,,,,1,,,,,,2, 3], function(number, index) {
+      timeCallbackCalled++;
+      if (number > 0) { return true; }
+    })
+    eq(testBool, true);
+    eq(timeCallbackCalled, 3);
+  },
+  'if elements are appended to array during run, it should ignore those elements': function() {
+    var array = [1, 3, 5, 7, 9]
+    var testBool = every(array, function(number, index) {
+      if (index === 0) {
+        array.push(25);
+      }
+      if (number < 24) {
+        return true;
+      }
+    })
+    eq(testBool, true);
+    eq(array[5], 25); // this checks that the array was actually modified
+  },
+  'if element is modified by callback and unvisited, it should use the modified value': function() {
+    var array = [1, 9]
+    var testBool = every(array, function(number, index) {
+      if (index === 0) {
+        array[1] = 18;
+      }
+      if (number > 17) {
+        return false;
+      }
+    })
+    eq(testBool, false);
+    eq(array[1], 18);
+  },
+  'if element is deleted during run, it should not run the callback': function() {
+    var timeCallbackCalled = 0;
+    var array = [1, 9]
+    var testBool = every(array, function(number, index) {
+      timeCallbackCalled++;
+      if (index === 0) {
+        delete array[1];
+      }
+      if (number > 0) {
+        return true;
+      }
+    })
+    eq(testBool, true);
+    eq(timeCallbackCalled, 1);
+  }
+});
+</script>
