@@ -36,6 +36,7 @@ does not mutate array on it being called, but the callback can
 
 # Step 2
 prototype implementation
+```javascript
 function find(array, callback, optionalThis) {
   var firstFoundNumber = 0;
   for (var i = 0; i < array.length; i++) {
@@ -45,6 +46,7 @@ function find(array, callback, optionalThis) {
     }
   }
 }
+```
 
 ## function declaration
 find(array, callback, optionalThis)
@@ -57,20 +59,25 @@ else returns undefined
 calls on every array index
 
 ## test cases
-Case A: find goes through an array, returns first value that passes 
+Case A: find goes through an array, returns first value that passes
+```javascript
 [7,2,5,45].find(number=>number>40)
 returns 45
-
+```
+```javascript
 Case B: find goes through an array with holes, returns first value that passes
 [7,,2,,undefined,45].find(number=>number>40)
 returns 45
-
+```
+```javascript
 Case C: find goes through array, no element passes cb, returns undefined
 [7,2,5,45].find(number=>number>100)
 returns undefined
+```
 
 ## Edge Cases:
 if cb changes the array, new elements will be ignored
+```javascript
 var array = [1, 3, 5, 7, 9]
 find(array, function(number, index) {
   array[index] *= 2;
@@ -78,7 +85,8 @@ find(array, function(number, index) {
     return number;
   }
 }) // returns undefined, because array[4] will be 18, but find() will only test 9 and not 18
-
+```
+```javascript
 if cb adds elements to the array after find() starts, it will not visit those elements
 var array = [1, 3, 5, 7, 9]
 find(array, function(number, index) {
@@ -87,8 +95,9 @@ find(array, function(number, index) {
     return number;
   }
 }) // returns undefined, even though 25 was pushed to end
-
+```
 if an element already exists, is changed by the cb, and unvisisted, find() will use the updated value
+```javascript
 var array = [1, 3, 5, 7, 9]
 find(array, function(number, index) {
   array[4] = 18;
@@ -96,8 +105,10 @@ find(array, function(number, index) {
     return number;
   }
 }) // returns 18
+```
 
 if an element is deleted, find() will still visit that element
+```javascript
 var array = [1, 3, 5, 7, 9]
 find(array, function(number, index) {
   if (index === 0) {
@@ -107,9 +118,11 @@ find(array, function(number, index) {
     return number;
   }
 }) // returns undefined, because it was deleted]
+```
 
 # Step 3
 ## prototype implementation
+```javascript
 function find(array, callback, optionalThis) {
   var firstFoundNumber = 0;
   for (var i = 0; i < array.length; i++) {
@@ -119,10 +132,11 @@ function find(array, callback, optionalThis) {
     }
   }
 }
-
+```
 ## function signature
+```javascript
 find(array, callback[, initialValues], optionalThis)
-
+```
 callback parameters
 	currentElement
 	currentIndex
