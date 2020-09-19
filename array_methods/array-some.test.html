@@ -1,0 +1,129 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// ## Prototype Implementation
+// function some(array, callback) {
+//   var isArrayTrue = false;
+//   for (var i = 0; i < array.length; i++) {
+//     isArrayTrue = callback(array[i]);
+//     if (isArrayTrue) { return isArrayTrue }; 
+//   }
+//   return isArrayTrue;
+// }
+
+// ## My function declaration
+// some(array, callback, optionalThis)
+
+// ## Callback parameters
+// element
+// currentIndex
+// originalArray
+
+// ## Return 
+// Returns true if at least one element passes. Else, it returns false
+
+// ## Requirements
+// - if callbacks condition passes at least 1 element, it should return true
+// - if callbacks condition does not pass for at least 1 element, it should return false
+// - if the array has a hole, it should not invoke the callback
+// - if elements are appended to array during run, it should ignore those elements
+// - if element is modified by callback and unvisited, it should use the modified value
+// - if element is deleted during run, it should not run the callback
+
+function some(array, callback, optionalThis) {
+  var originalCallback = callback;
+  var originalArrayLength = array.length;
+  var isTruthyFound;
+
+  if (optionalThis) {
+    originalCallback = originalCallback.bind(optionalThis);
+  }
+  for (var i = 0; i < originalArrayLength; i++) {
+    if (array[i]) {
+      isTruthyFound = originalCallback(array[i], i, array);
+      if (isTruthyFound) { return true; } 
+    }
+  }
+  return false;
+}
+
+tests({
+  'it should take the ith position of the array as the 1st argument of the callback': function() {
+    some([1], function(number) {
+      eq(number, 1);
+    })
+  },
+  'it should take the index position as the 2nd argument of the callback': function() {
+    some([1], function(number, index) {
+      eq(index, 0);
+    })
+  },
+  'it should take the original array as the 3rd argument of the callback': function() {
+    var testArray = [1];
+    some(testArray, function(number, index, originalArray) {
+      eq(testArray, originalArray);
+    })
+  },
+  'it should take an optional this as the third argument': function() {
+    some([1, 2, 3], function() {
+      eq(this.name, 'Hattori');
+    }, {name: 'Hattori'})
+  },
+  'if at least 1 element passes callbacks condition, it should return true': function() {
+    var testBool = some([1, 2, 3], function(number) {
+      if (number > 2) { return true; }
+    })
+    eq(testBool, true);
+  },
+  'if no element passes the callbacks condition, it should return false': function() {
+    var testBool = some([1, 2, 3], function(number) {
+      if (number > 3) { return true; }
+    })
+    eq(testBool, false);
+  },
+  'if the array has a hole, it should not invoke the callback': function() {
+    var timesCallbackCalled = 0;
+    var testBool = some([,,,,42,,,,2, 3], function(number, index) {
+      timesCallbackCalled++;
+      if (number === 3) { return true; }
+    })
+    eq(testBool, true);
+    eq(timesCallbackCalled, 3);
+  },
+  'if elements are appended to array during run, it should ignore those elements': function() {
+    var array = [1, 3, 5, 7, 9]
+    var testBool = some(array, function(number, index) {
+      if (index === 0) {
+        array.push(25);
+      }
+      if (number > 24) { return true; }
+    })
+    eq(testBool, false);
+    eq(array[5], 25); // this checks that the array was actually modified
+  },
+  'if element is modified by callback and unvisited, it should use the modified value': function() {
+    var array = [1, 9]
+    var testBool = some(array, function(number, index) {
+      if (index === 0) {
+        array[1] = 18;
+      }
+      if (number > 17) { return true; }
+    })
+    eq(testBool, true);
+    eq(array[1], 18); // this checks that the array was actually modified
+  },
+  'if element is deleted during run, it should not run the callback': function() {
+    var timeCallbackCalled = 0;
+    var array = [1, 9]
+    var testBool = some(array, function(number, index) {
+      timeCallbackCalled++;
+      if (index === 0) {
+        delete array[1];
+      }
+      if (number > 1) { return true; }
+    })
+    eq(testBool, false);
+    eq(timeCallbackCalled, 1);
+  }
+});
+</script>
