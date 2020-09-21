@@ -81,19 +81,6 @@ some([,,,,,4,,,32,,undefined], function(number) {
 })
 // returns true
 ```
-- callback is not invoked for deleted values
-```javascript
-var array = [1, 2, 3];
-var callbackCounter = 0;
-some(array, function(number, index) {
-  if (index === 0 ) {
-    delete array[3];
-  }
-  callbackCounter++;
-  return number > 0;
-})
-// returns true
-```
 - elements appended to array will not be visited
 ```javascript
 var testArray = [1, 2, 3];
@@ -110,37 +97,37 @@ some(testArray, function(number, index) {
   if (index === 0 ) {
     testArray[2] = 100
   }
-  return number < 99;
+  return number < 100;
 })
 // returns false
 ```
-- deleted elements will not be visited
+- callback is not invoked for deleted values
 ```javascript
-var testArray = [1, 2, 3];
-some(testArray, function(number, index) {
+var array = [1, 2, 3];
+var callbackCounter = 0;
+some(array, function(number, index) {
   if (index === 0 ) {
-    delete testArray[2];
+    delete array[3];
   }
-  return number < 3;
+  callbackCounter++;
+  return number > 0;
 })
-// returns true, since position 2 no longer exists
+// returns true
 ```
 # Version 3
 ## Prototype Implementation
 ```javascript
-function every(array, callback) {
-  var isArrayTrue = true; 
+function some(array, callback) {
+  var isArrayTrue = false;
   for (var i = 0; i < array.length; i++) {
-    isArrayTrue = callback();
-    if (!isArrayTrue) {
-      return isArrayTrue;
-    }
+    isArrayTrue = callback(array[i]);
+    if (isArrayTrue) { return isArrayTrue }; 
   }
   return isArrayTrue;
 }
 ```
 ## My function declaration
-every(array, callback, optionalThis)
+some(array, callback, optionalThis)
 
 ## Callback parameters
 element
@@ -148,13 +135,12 @@ currentIndex
 originalArray
 
 ## Return 
-Returns true if all elements pass, else false
+Returns true if at least one element passes. Else, it returns false
 
 ## Requirements
-- if callbacks condition passes for all elements, it should return true
-- if callbacks condition fails for any element, it should return false
-- if the array is empty, it should return true
-- if array has undefined indexes (holes), it should not run the callback
+- if callbacks condition passes at least 1 element, it should return true
+- if callbacks condition does not pass for at least 1 element, it should return false
+- if the array has a hole, it should not invoke the callback
 - if elements are appended to array during run, it should ignore those elements
 - if element is modified by callback and unvisited, it should use the modified value
 - if element is deleted during run, it should not run the callback
