@@ -1,0 +1,138 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// ## Prototype Implementation
+// // primary will be the starting point for the array merge
+// function concat(primaryArray, ...arrays) {
+//   // building new array to return
+//   // since concat does not change existing array, make a copy
+//   // alternate way, which one fits the specs?
+//   // var newArray = Object.assign([], primaryArray);
+//   var newArray = [...primaryArray]; 
+
+//   // starting with primaryArray, 
+//   arrays.forEach(function(array) {
+//     for (var i = 0; i < array.length; i ++) {
+//       newArray.push(array[i]);
+//     }
+//   })
+//   console.log(newArray);
+//   return newArray;
+// }
+
+// ## Function Signature
+// concat(primaryArray, ...arraysN)
+
+// ## Returns
+// returns a new array instance
+
+// ## Requirements
+// - it should accept a primaryArray as the 1st argument
+// - if no arraysN, then concat returns a new array instance of primaryArray
+// - if arraysN, it should accept an number of arrays as the arrays parameter
+// - if arraysN, it should merge the arrays, left to right, into the new single, array instance
+// - it should not recurse into nested arrays, it will just add the array as an element
+// - the return value is a shallow instance, so the original array and new array share object references
+// - it should accepts data types such as strings, numbers, and booleans
+// - if modifying the new array instance, it should not mutate the source arrays
+
+function concat(primaryArray, ...arrays) {
+  var newArray = [...primaryArray];
+
+  arrays.forEach(function(array) {
+    for (var i = 0; i < array.length; i++) {
+      newArray.push(array[i]);
+    }
+  })
+  return newArray;
+}
+
+tests({
+  'it should accept an array as the 1st argument': function() {
+    var testArray = [1, 2, 3];
+    concat(testArray);
+    eq(Array.isArray(testArray), true);
+  },
+  'if arraysN, it should accept an number of arrays as the arrays parameter': function() {
+    var testArray1 = [1, 2, 3];
+    var testArray2 = [4, 5, 6];
+    concat([0, 0, 7], testArray1, testArray2);
+    eq(Array.isArray(testArray1), true);
+    eq(Array.isArray(testArray2), true);
+  },
+  'if arraysN, it should merge the arrays, left to right, into the new single array': function() {
+    var testArray1 = [1, 2, 3];
+    var testArray2 = ['a', 'b', 'c'];
+    var expectedResult = [1, 2, 3, 'a', 'b', 'c'];
+    var newArray = concat(testArray1, testArray2);
+    for (var i = 0; i < expectedResult.length; i++) {
+      eq(expectedResult[i] === newArray[i], true)
+    }
+  },
+  'if arraysN and there are multiple arrays, it should be merged into the new single array': function() {
+    var testArray1 = [1, 2, 3];
+    var testArray2 = [4];
+    var testArray3 = [5];
+    var testArray4 = [6];
+    var expectedResult = [1, 2, 3, 4, 5, 6];
+    var newArray = concat(testArray1, testArray2, testArray3, testArray4);
+    for (var i = 0; i < expectedResult.length; i++) {
+      eq(expectedResult[i] === newArray[i], true)
+    }
+  },
+  'if no arraysN, then concat returns a new array instance of primaryArray': function() {
+    var testArray = [1, 2, 3];
+    var newArray = concat(testArray);
+    eq(testArray !== newArray, true);
+  },
+  'it should not recurse into nested arrays, it will just add the array as an element': function() {
+    var testArray1 = [1, [2]];
+    var testArray2 = [[4, 5], 6];
+    var expectedResult = [1, [2], [4, 5], 6];
+    var newArray = concat(testArray1, testArray2);
+    
+    // if element is an array, it'll check that, but not its contents
+    for (var i = 0; i < expectedResult.length; i++) {
+      if (Array.isArray(expectedResult[i])) {
+        eq(Array.isArray(newArray[i]), true);
+      } else {
+        eq(expectedResult[i] === newArray[i], true);
+      }
+    }
+  },
+  'it should accepts data types such as strings, numbers, and booleans': function() {
+    var arr = ['dave', 2];
+    var arr2 = [true, false];
+    var expectedResult = ['dave', 2, true, false];
+    var test = concat(arr, arr2);
+    for (var i = 0; i < test.length; i++) {
+      eq(expectedResult[i] === test[i], true)
+    }
+  },
+  'it should merge arrays of objects': function() {
+    var testArray1 = [{name: 'bill'}];
+    var testArray2 = [{name: 'ted'}];
+    var expectedResult = [{name: 'bill'}, {name: 'ted'}];
+    var newArray = concat(testArray1, testArray2);
+
+    eq(newArray[0].name, 'bill');
+    eq(newArray[1].name, 'ted');
+  },
+  'the return value is a shallow instance, so the original array and new array share object references': function() {
+    var arr = [[1]];
+    var arr2 = [6];
+    var test = concat(arr, arr2);
+    arr[0].push(1000);
+    eq(test[0][1], 1000);
+  },
+  'if modifying the new array instance, it should not mutate the source arrays': function() {
+    var arr = [1, 2];
+    var arr2 = [3, 4];
+    var test = concat(arr, arr2);
+    test[0] = 999;
+    test[2] = 777;
+    eq(arr[0], 1); // arr should be unchanged
+    eq(arr2[0], 3); // arr2 should be unchanged
+  },
+});
+</script>
