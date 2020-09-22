@@ -115,6 +115,7 @@ test[2] = 777;
 
 # Step3
 ## Prototype Implementation
+```javascript
 // primary will be the starting point for the array merge
 function concat(primaryArray, ...arrays) {
   // building new array to return
@@ -132,6 +133,7 @@ function concat(primaryArray, ...arrays) {
   console.log(newArray);
   return newArray;
 }
+```
 
 ## Function Signature
 concat(primaryArray, ...arraysN)

@@ -1,0 +1,103 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// ## Prototype implementation
+// function indexOf(array, elementToFind, startPosition) {
+//   var startIndex = 0;
+//   if (startPosition) {
+//     startIndex = startPosition;
+
+//     // read about JS arrays and apparently there's no such thing as out of bounds error in JS
+//     // negative values return undefined. just catch that?
+//     if (startPosition < 0) {
+//       startIndex = startPosition + array.length;
+//     }
+//   }
+  
+//   for (var i = startIndex; i < array.length; i++) {
+//     if (array[i] === elementToFind) {
+//       return i;
+//     }
+//   }
+//   return -1;
+// }
+
+// ## Function Signature
+// function indexOf(array, elementToFind, startPosition)
+
+// ## Parameters
+// array
+// elementToFind
+// startPosition
+
+// ## Return
+// value of index, else -1 if not found
+
+function indexOf(array, elementToFind, startPosition) {
+  var arrayPosition = 0;
+
+  if (startPosition) {
+    arrayPosition = startPosition;
+  }
+  for (var i = arrayPosition; i < array.length; i++) {
+    if (array[i] === elementToFind) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+
+tests({
+  'it should accept an array as its first argument': function() {
+    var testArray = [1, 2, 3];
+    indexOf(testArray);
+    eq(Array.isArray(testArray), true);
+  },
+  'it should accept the element to find as its 2nd argument': function() {
+    var testArray = [1, 2];
+    var testIndex = indexOf(testArray, 2);
+    eq(Number.isInteger(testIndex), true);
+  },
+  'it should accept a start position as its third argument': function() {
+    var testArray = [1, 2, 3];
+    var testIndex = indexOf(testArray, 2, 2);
+    eq(Number.isInteger(testIndex), true);
+  },
+  'if the elementToFind is found in array, it should return its index': function() {
+    var testArray = [1, 2, 3];
+    var testIndex = indexOf(testArray, 3);
+    eq(testIndex, 2);
+  },
+  'if the elementToFind is not found in Array, return -1': function() {
+    var testArray = [1, 2, 3];
+    var testIndex = indexOf(testArray, 77);
+    eq(testIndex, -1);
+  },
+  'if startPosition, array starts at startPosition and if elementToFind is found, it should return its index': function() {
+    var testArray = [1, 2, 3];
+    var testIndex = indexOf(testArray, 3, 2);
+    eq(testIndex, 2);
+  },
+  'if startPosition, array starts at startPosition and if elementToFind is not found, it should return -1': function() {
+    var testArray = [1, 2, 3];
+    var testIndex = indexOf(testArray, 2, 2);
+    eq(testIndex, -1);
+  },
+  'if startPosition is negative and if elementToFind is found, it should return its index': function() {
+    var testArray = [1, 2, 3];
+    var testIndex = indexOf(testArray, 3, -1000);
+    eq(testIndex, 2);
+  },
+  'if startPosition is greater than array.length, it should not search array and return -1': function() {
+    var testArray = [1, 2, 3];
+    var testIndex = indexOf(testArray, 3, 5);
+    eq(testIndex, -1);
+  },
+  'if startPosition is 0, it should search the entire array': function() {
+    var testArray = [1, 2, 3, 4, 5];
+    var testIndex = indexOf(testArray, 5, 0);
+    eq(testIndex, 4);
+  },
+});
+</script>
