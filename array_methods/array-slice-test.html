@@ -1,0 +1,153 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// Prototype Implementation
+// function slice(array, start, end) {
+//   var positionStart = 0;
+//   var positionEnd = array.length;
+//   var newArray = [];
+
+//   if (start) {
+//     positionStart = start;
+//     if (start < 0) {
+//       positionStart = array.length + start;
+//     }
+//   }
+//   if (end) {
+//     positionEnd = end;
+//     if (end < 0) {
+//       positionEnd = array.length + end;
+//     }
+//   }
+
+//   for (var i = positionStart; i < positionEnd; i++) {
+//     newArray.push(array[i]);
+//   }
+//   return newArray;
+// }
+
+// Function Signature
+// slice(array, start, end)
+
+// Parameters
+// start
+// end
+
+// Returns
+// array with sliced values
+
+// Requirements
+// - if start exists, it should return a copy of array from start index to array end
+// - if no start, it should return a copy of the array
+// - if start and end exist, it should return a copy of the array from start to end (exclusive)
+// - if start < 0, it should use the start offset (array.length+start) to return a copy of array from start to array end
+// - if start > array.length - 1, return empty array
+// - if end < 0, it should use the end offset (array.length+end) to return a copy of array from start to end
+// - if no end, it should return a copy of array from start to array end
+// - if end > array.length - 1, it should return a copy of array from start to array end
+// - it should return a shallow copy with shared object references
+// - it should return a shallow copy with primitives unique to each array
+// - added elements to either array should affect the other
+
+function slice(array, start, end){
+  var newArray = [];
+  var startIndex = 0;
+  var endIndex = array.length;
+
+  if (start) {
+    startIndex = start;
+    if (start < 0) {
+      startIndex += array.length;
+    }
+  }
+  if (end) {
+    endIndex = end;
+    if (end > array.length) {
+      endIndex = array.length;
+    }
+    
+    if (end < 0) {
+      endIndex += array.length;
+    }
+  }
+  for (var i = startIndex; i < endIndex; i++) {
+    newArray.push(array[i]);
+  }
+  return newArray;
+}
+
+tests({
+  'if start exists, it should return a copy of array from start index to array end': function() {
+    var sliceTest = slice([1, 2, 3], 1);
+    eq(Array.isArray(sliceTest), true);
+    eq(sliceTest[0], 2);
+  },
+  'if no start, it should return a copy of the array': function() {
+    var testArray = [1, 2, 3];
+    var sliceTest = slice(testArray);
+    eq(Array.isArray(sliceTest), true);
+    eq(testArray === sliceTest, false);
+  },
+  'if no end, it should return a copy of array from start to array end': function() {
+    var testArray = [1, 3, 5];
+    var sliceTest = slice(testArray, 1);
+    eq(sliceTest[0], 3);
+    eq(sliceTest[1], 5);
+    eq(sliceTest.length, 2);
+  },
+  'if start and end exist, it should return a copy of the array from start to end (exclusive)': function() {
+    var testArray = [1, 2, 3];
+    var sliceTest = slice(testArray, 0 , 3);
+    eq(sliceTest[0], testArray[0]);
+    eq(sliceTest[2], testArray[2]);
+  },
+  'if start < 0, it should use the start offset (array.length+start) to return a copy of array from start to array end': function() {
+    var testArray = [1, 2, 3];
+    var sliceTest = slice(testArray, -2);
+    eq(sliceTest[0], 2);
+    eq(sliceTest[1], 3);
+    eq(sliceTest.length, 2);
+  },
+  'if start > array.length - 1, return empty array': function() {
+    var testArray = [1, 2, 3];
+    var sliceTest = slice(testArray, 4);
+    eq(Object.keys(sliceTest).length, 0);
+  },
+  'if end < 0, it should use the end offset (array.length+end) to return a copy of array from start to end': function() {
+    var testArray = [1, 2, 3];
+    var sliceTest = slice(testArray, 0, -1);
+    eq(sliceTest[0], 1);
+    eq(sliceTest[1], 2);
+    eq(sliceTest.length, 2);
+  },
+  'if end > array.length - 1, it should return a copy of array from start to array end': function() {
+    var testArray = [1, 3, 5];
+    var sliceTest = slice(testArray, 1, 4);
+    eq(sliceTest[0], 3);
+    eq(sliceTest[1], 5);
+    eq(sliceTest.length, 2);
+  },
+  'it should return a shallow copy with shared object references': function() {
+    var testArray = [1, 2, [3]];
+    var sliceTest = slice(testArray);
+    sliceTest[2][0] = 1969;
+    eq(testArray[2][0], 1969);
+  },
+  'it should return a shallow copy with primitives unique to each array': function() {
+    var testArray = [1, 3, 5];
+    var sliceTest = slice(testArray);
+    sliceTest[0] = 1001;
+    eq(testArray[0] !== 1001, true);
+    testArray[2] = 5555;
+    eq(sliceTest[2] !== 5555, true);
+  },
+  'added elements to either array should affect the other': function() {
+    var testArray = [1, 3, 5];
+    var sliceTest = slice(testArray);
+    testArray.push(7007);
+    eq(sliceTest.includes(7007), false);
+    sliceTest.push(7777);
+    eq(testArray.includes(7777), false);
+  },
+});
+</script>
