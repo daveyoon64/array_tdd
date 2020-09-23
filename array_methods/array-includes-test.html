@@ -1,0 +1,114 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// Prototype Implementation
+// function includes(arraylike, valueToFind, fromIndex) {
+//   var startIndex = 0;
+
+//   if (fromIndex) {
+//     startIndex = fromIndex;
+//     if (fromIndex < 0) {
+//       startIndex = arraylike.length + fromIndex;
+//     }
+//   }
+//   for (var i = startIndex; i < arraylike.length; i++) {
+//     if (arraylike[i] === valueToFind) {
+//       return true;
+//     }
+//   }
+//   return false;
+// }
+
+// Function Signature
+// includes(arraylike, valueToFind, fromIndex)
+
+// Parameters
+// arraylike
+// valueToFind
+// fromIndex
+
+// Returns
+// true if valueToFind is found
+// false if valueToFind is not found
+
+// Requirements
+//  it should return true if it finds valueToFind in array
+//  it should return false if it does not find valueToFind in array
+//
+//  if no fromIndex, it should search the entire array
+//  if fromIndex, it should start searching the array at fromIndex
+//  if fromIndex < 0, calculate the index as array.length + fromIndex, then it should start searching the array at calculated index
+//  if fromIndex is still negative after calculated index, it should search the entire array
+//  if fromIndex >= array.length, it should return false and the array is not searched
+//
+//  it should be case-sensitive
+//  it should work for all array-like objects
+
+function includes(arraylike, valueToFind, fromIndex) {
+  var newArray = Array.from(arraylike);
+  var startIndex = 0;
+
+  if (fromIndex) {
+    startIndex = fromIndex;
+    if (fromIndex < 0) {
+      startIndex = newArray.length + fromIndex;
+    }
+  }
+
+  for (var i = startIndex; i < newArray.length; i++) {
+    if (newArray[i] === valueToFind) {
+      return true;
+    }
+  }
+  return false;
+}
+
+tests({
+  'it should work for all array-like objects': function() {
+    // NOTE: the generic nature of includes() are reflected implicitly in the tests below
+    // I used various array-like structures to test includes()
+    // Example: a sting used in test 3, at set in test 4, a map in test 5
+    var testIterable = 'dave';
+    includes(testIterable);
+    eq(Array.isArray(Array.from(testIterable)), true);
+  },
+  'it should return true if it finds valueToFind in array': function() {
+    var arrayTest = includes([1, 2, 3, 4], 4);
+    eq(arrayTest, true);
+  },
+  'it should return false if it does not find valueToFind in array': function() {
+    var arrayTest = includes('robots', 'z');
+    eq(arrayTest, false);
+  },
+  'if no fromIndex, it should search the entire array': function() {
+    var testSet = new Set(['kobe', 'fisher', 'shaq', 'horry', 'rice']);
+    var arrayTest = includes(testSet, 'rice');
+    eq(arrayTest, true);
+  },
+  'if fromIndex, it should start searching the array at fromIndex': function() {
+    var testMap = new Map([[1, 2], [2, 4], [4, 8]]);
+    var arrayTest = includes(testMap.keys(), 4, 2);
+    eq(arrayTest, true);
+  },
+  'if fromIndex < 0, calculate the index as array.length + fromIndex, then it should start searching the array at calculated index': function() {
+    var testString = 'kershaw';
+    var arrayTest = includes(testString, 'h', -3);
+    eq(arrayTest, true);
+  },
+  'if fromIndex is still negative after calculated index, it should search the entire array': function() {
+    var testString = 'My name is Ozymandias, King of Kings';
+    var arrayTest = includes(testString, 'p', -34348);
+    eq(arrayTest, false);
+  },
+  'if fromIndex >= array.length, it should return false and the array is not searched': function() {
+    var testString = 'My name is Ozymandias, King of Kings';
+    var arrayTest = includes(testString, 'M', 100);
+    eq(arrayTest, false);
+  },
+  'it should be case-sensitive': function() {
+    var testString = 'Look on my Works';
+    var arrayTest = includes(testString, 'w');
+    eq(arrayTest, false);
+  },
+});
+</script>
