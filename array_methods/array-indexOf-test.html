@@ -42,6 +42,9 @@ function indexOf(array, elementToFind, startPosition) {
       arrayPosition = startPosition + array.length;
     }
   }
+  // NOTE: after reading tomashugo's version, I see a lot of explicit condition 
+  // catches. Was this in the previous videos? 
+  // if (fromIndex >= this.length || fromIndex < 0) return returnValue;
   for (var i = arrayPosition; i < array.length; i++) {
     if (array[i] === elementToFind) {
       return i;

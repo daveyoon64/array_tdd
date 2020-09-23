@@ -37,6 +37,11 @@ function find(array, callback, optionalThis) {
     if (testValue) {
       return testValue
     }
+    // NOTE: From mikrubashkin's findTest, you can test the return in if w/o a temp variable
+    // much cleaner
+    // if (myFindCallback(array[i], i, array)) {
+    //   return array[i];
+    // }
   }
   return testValue;
 }

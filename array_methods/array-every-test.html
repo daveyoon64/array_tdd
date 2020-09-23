@@ -27,6 +27,7 @@
 function every(array, callback, optionalThis) {
   var originalCallback = callback;
   var originalArrayLength = array.length;
+  // TODO: ShelbyEliza's solution uses Object.keys(...) to deal with the holes...
   var testBoolean = true;
 
   if (optionalThis) {
@@ -34,7 +35,7 @@ function every(array, callback, optionalThis) {
   }
   for (var i = 0; i < originalArrayLength; i++) {
     if (!array[i]) {
-      continue;
+      continue; // so you don't have to skip holes like this =)
     } else {
       testBoolean = originalCallback(array[i], i , array);
       if (!testBoolean) { return false; }

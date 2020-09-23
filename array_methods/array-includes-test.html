@@ -67,7 +67,7 @@ tests({
   'it should work for all array-like objects': function() {
     // NOTE: the generic nature of includes() are reflected implicitly in the tests below
     // I used various array-like structures to test includes()
-    // Example: a sting used in test 3, at set in test 4, a map in test 5
+    // Example: a string used in test 3, at set in test 4, a map in test 5
     var testIterable = 'dave';
     includes(testIterable);
     eq(Array.isArray(Array.from(testIterable)), true);
@@ -110,5 +110,7 @@ tests({
     var arrayTest = includes(testString, 'w');
     eq(arrayTest, false);
   },
+  // NOTE: hmm, after reading dnlbellfield's includes, did I have to include a throw exception 
+  // test? I'll need to re-read includes, wasn't in my notes 
 });
 </script>

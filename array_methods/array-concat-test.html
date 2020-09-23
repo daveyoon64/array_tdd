@@ -37,6 +37,8 @@
 // - if modifying the new array instance, it should not mutate the source arrays
 
 function concat(primaryArray, ...arrays) {
+  // NOTE: reading DoctorStupidMD's code and saw that you can access arguements even if you
+  // don't declare parameters. Interesting...
   var newArray = [...primaryArray];
 
   arrays.forEach(function(array) {

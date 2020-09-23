@@ -33,17 +33,15 @@
 function some(array, callback, optionalThis) {
   var originalCallback = callback;
   var originalArrayLength = array.length;
-  var isTruthyFound;
-
+  
   if (optionalThis) {
     originalCallback = originalCallback.bind(optionalThis);
   }
   for (var i = 0; i < originalArrayLength; i++) {
-    if (array[i]) {
-      isTruthyFound = originalCallback(array[i], i, array);
-      if (isTruthyFound) { return true; } 
+    if (i in array && originalCallback(array[i], i, array)) { 
+        return true;  
     }
-  }
+  } // NOTE: cleaned up my version thanks to kca485's and cmac1223's code
   return false;
 }
 

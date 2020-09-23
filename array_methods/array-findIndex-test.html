@@ -32,6 +32,7 @@ function findIndex(array, callback, optionalThis) {
   if (optionalThis) {
     originalCallback = originalCallback.bind(optionalThis);
   }
+  // NOTE: ellypham's explicit exit when index length is 0 may be more readable
   for (var i = 0; i < originalArrayLength; i++) {
     foundNumber = originalCallback(array[i], i, array);
     if (foundNumber) {

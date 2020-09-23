@@ -34,7 +34,8 @@
 
 function lastIndexOf(array, searchElement, fromIndex) {
   var arrayPosition = array.length - 1;
-
+  // TODO: check out cmac1223's solution. dev did checks at the start and end
+  // of the array to prevent excess work. Yours works, but cmac1223's is more efficient
   if (fromIndex) {
     arrayPosition = fromIndex;
     if (fromIndex < 0) {

@@ -37,17 +37,17 @@
 // array with sliced values
 
 // Requirements
-// - if start exists, it should return a copy of array from start index to array end
-// - if no start, it should return a copy of the array
-// - if start and end exist, it should return a copy of the array from start to end (exclusive)
-// - if start < 0, it should use the start offset (array.length+start) to return a copy of array from start to array end
-// - if start > array.length - 1, return empty array
-// - if end < 0, it should use the end offset (array.length+end) to return a copy of array from start to end
-// - if no end, it should return a copy of array from start to array end
-// - if end > array.length - 1, it should return a copy of array from start to array end
-// - it should return a shallow copy with shared object references
-// - it should return a shallow copy with primitives unique to each array
-// - added elements to either array should affect the other
+// if start exists, it should return a copy of array from start index to array end
+// if no start, it should return a copy of the array
+// if start and end exist, it should return a copy of the array from start to end (exclusive)
+// if start < 0, it should use the start offset (array.length+start) to return a copy of array from start to array end
+// if start > array.length - 1, return empty array
+// if end < 0, it should use the end offset (array.length+end) to return a copy of array from start to end
+// if no end, it should return a copy of array from start to array end
+// if end > array.length - 1, it should return a copy of array from start to array end
+// it should return a shallow copy with shared object references
+// it should return a shallow copy with primitives unique to each array
+// added elements to either array should affect the other
 
 function slice(array, start, end){
   var newArray = [];
@@ -72,6 +72,9 @@ function slice(array, start, end){
   }
   for (var i = startIndex; i < endIndex; i++) {
     newArray.push(array[i]);
+    // NOTE: from Irybakova's version, I learned you can add to an array with square brackets
+    // slicedArray[a] = array[i];
+    // JS arrays are weird
   }
   return newArray;
 }

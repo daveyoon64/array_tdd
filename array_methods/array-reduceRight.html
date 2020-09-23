@@ -61,7 +61,9 @@ function reduceRight(array, callback, initialValue) {
   }
 
   for (currentValueIndex; currentValueIndex >= 0; currentValueIndex--) {
-    if (currentValueIndex in array) {
+    // NOTE: adkisson's version used a while method to skip all the holes. is that better 
+    // or the in operator?
+    if (currentValueIndex in array) { 
         accumulator = callback(accumulator, array[currentValueIndex], currentValueIndex);
     }
   }
