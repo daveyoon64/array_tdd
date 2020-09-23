@@ -1,0 +1,105 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// Prototype Implementation
+// function lastIndexOf(array, searchElement) {
+//   var startIndex = array.length - 1;
+
+//   for (var i = startIndex; i >= 0; i--) {
+//     if (array[i] === searchElement) {
+//       return i;
+//     }
+//   }
+//   return - 1;
+// }
+
+// Function signature
+// lastIndexOf(array, searchElement, fromIndex)
+
+// Parameters
+// array
+// searchElement
+// fromIndex
+
+// Requirements
+// if searchElement found, it should return the rightmost instance
+// if searchElement not found, it should return -1
+// if no fromIndex, it should start at array.length - 1
+// if fromIndex, it should start its search from that array position
+// if fromIndex > array.length, it should search the entire array
+// if fromIndex < 0, it should take it as an offset from array end (array.length + fromIndex)
+// if fromIndex < 0, it should still search right to left
+// if fromIndex < 0, and the offset is still negative, then return -1
+// it should use strict equality
+
+function lastIndexOf(array, searchElement, fromIndex) {
+  var arrayPosition = array.length - 1;
+
+  if (fromIndex) {
+    arrayPosition = fromIndex;
+    if (fromIndex < 0) {
+      arrayPosition = array.length + arrayPosition;
+    }
+  }
+  for (var i = arrayPosition; i >= 0; i--) {
+    if (array[i] === searchElement) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+
+tests({
+  'it should accept an array as its first argument': function() {
+    var testArray = [1, 2, 3];
+    lastIndexOf(testArray);
+    eq(Array.isArray(testArray), true);
+  },
+  'it should accept searchElement to find as its 2nd argument': function() {
+    var testArray = [1, 2];
+    var testSearchElement = 2;
+    var testIndex = lastIndexOf(testArray, testSearchElement);
+    eq(Number.isInteger(testSearchElement), true);
+  },
+  'it should accept fromIndex as its third argument': function() {
+    var testArray = [1, 2, 3];
+    var testFromIndex = 2;
+    var testIndex = lastIndexOf(testArray, 2, testFromIndex);
+    eq(Number.isInteger(testIndex), true);
+  },
+  'if searchElement found, it should return the rightmost instance': function() {
+    var testIndex = lastIndexOf([1, 1, 1], 1);
+    eq(testIndex, 2);
+  },
+  'if searchElement not found, it should return -1': function() {
+    var testIndex = lastIndexOf([1, 1, 1], 18);
+    eq(testIndex, -1);
+  },
+  'if no fromIndex, it should start at array.length - 1': function() {
+    var testIndex = lastIndexOf([5, 1, 1], 5);
+    eq(testIndex, 0);
+  },
+  'if fromIndex, it should start its search from that array position': function() {
+    var testIndex = lastIndexOf([1, 4, 1, 4], 4, 2);
+    eq(testIndex, 1);
+  },
+  'if fromIndex > array.length, it should search the entire array': function() {
+    var testIndex = lastIndexOf(['dave', 4, 1, 4], 'dave', 20);
+    eq(testIndex, 0);
+  },
+  'if fromIndex < 0, it should take it as an offset from array end (array.length + fromIndex)': function() {
+    var testIndex = lastIndexOf([4, 2, 1, 4], 4, -2);
+    eq(testIndex, 0);
+  },
+  'if fromIndex < 0, and the offset is still negative, then return -1': function() {
+    var testIndex = lastIndexOf([4, 2, 1, 4], 4, -100);
+    eq(testIndex, -1);
+  },
+  'it should use strict equality': function() {
+    var testArray = [1, 2, 3, 4, 5];
+    var testIndex = lastIndexOf(testArray, '5');
+    eq(testIndex, -1);
+  },
+});
+</script>

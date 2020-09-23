@@ -118,6 +118,10 @@ function indexOf(array, elementToFind, startPosition) {
     if (startPosition < 0) {
       startIndex = startPosition + array.length;
     }
+    // after some experiementation, this isn't needed. If this gets a negative value, JS will
+    // just start at that negative index. Basically, it just goes WIDE left of the array.
+    // [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5], 
+    // thinking about this, I have to test it with multiple values
   }
   
   for (var i = startIndex; i < array.length; i++) {
