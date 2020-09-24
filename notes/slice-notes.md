@@ -100,7 +100,7 @@ slice([1, 2, 3], 1, 2)
 ```javascript
 slice([1, 2, 3], -2,)
 // [2, 3]
-``
+```
 - if start > array.length - 1, return empty array
 ```javascript
 slice([1, 2, 3], 3)

@@ -87,7 +87,7 @@ tests({
   },
   'if no start, it should return a copy of the array': function() {
     var testArray = [1, 2, 3];
-    var sliceTest = slice(testArray);
+    var sliceTest = slice(testArray) ;
     eq(Array.isArray(sliceTest), true);
     eq(testArray === sliceTest, false);
   },

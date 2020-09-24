@@ -1,0 +1,149 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// function join(arraylike, separator) {
+//   var newArray = Array.from(arraylike);
+//   var newString = '';
+//   // helper inner function for array within array
+//   function arrayHelper(array, pos){
+//     if (pos > array.length - 1) { return; } // base case
+//     if (pos !== 0) {
+//       separatorHelper(separator);
+//     }
+//     newString += array[pos];
+//     arrayHelper(array, pos + 1);
+//   }
+//   // helper inner function to deal with separator cases
+//   function separatorHelper(separator) {
+//     if (separator === '') {
+//       return;
+//     } else if (!separator) {
+//       newString += ',';
+//     } else {
+//       newString += separator;
+//     }
+//   }
+//   for (var i = 0; i < newArray.length; i++) {
+//     if (i !== 0) {
+//       separatorHelper(separator);
+//     }
+//     if (Array.isArray(newArray[i])) {
+//       arrayHelper(newArray[i], 0);
+//     } else if(!newArray[i]) {
+//       continue;
+//     } else {
+//       newString += newArray[i];
+//     }
+//   }
+//   return newString;
+// }
+
+// join() merges all elements in an array and returns a single string
+// ## Function Signature
+// join(arraylike, separator)
+
+// ## Parameters
+// arraylike
+// separator
+
+// ## Return
+// String
+
+// ## Requirements
+// - it should merge all elements in the array and return a single string
+// - if there are arrays as elements, it should flatten those array and merge the arrays elements into the string
+
+// - if separator, it should use the operator in-between each merged element.
+// - if separator is equal to a blank string, it should use no separator when merging elements
+// - if no separator, it should the , character in-between each merged element.
+
+// - if array.length is 0, it should return a blank string
+// - if there is a blank array as an element, it should treat it as a blank string
+// - if an element is undefined, null, or an empty array, it should treat it  as a blank string
+function join(arraylike, separator) {
+  var newArray = Array.from(arraylike);
+  var newString = '';
+
+  // helper inner function for array within array
+  function arrayHelper(array, pos){
+    if (pos > array.length - 1) { return; } // base case
+    if (pos !== 0) {
+      separatorHelper(separator);
+    }
+    newString += array[pos];
+    arrayHelper(array, pos + 1);
+  }
+  // helper inner function to deal with separator cases
+  function separatorHelper(separator) {
+    if (separator === '') {
+      return;
+    } else if (!separator) {
+      newString += ',';
+    } else {
+      newString += separator;
+    }
+  }
+  for (var i = 0; i < newArray.length; i ++) {
+    if (i !== 0) {
+      separatorHelper(separator);
+    }
+    if (Array.isArray(newArray[i])) {
+      arrayHelper(newArray[i], 0);
+    } else if(!newArray[i]) {
+      continue;
+    } else {
+      newString += newArray[i];
+    }
+  }
+  return newString;
+}
+
+tests({
+  'it should work for all array-like objects': function() {
+    // NOTE: the generic nature of join() are reflected implicitly in the tests below
+    // I used various array-like structures to test includes()
+    var testSet = new Set(['e', 'g', 'a', 'l', 'i']);
+    var testJoinString = join(testSet);
+    eq(Array.isArray(Array.from(testSet)), true);
+    eq(testJoinString, 'e,g,a,l,i');
+  },
+  'it should merge all elements in the array and return a single string': function() {
+    var testJoinString = join(['a', 'p', 'p', 'l', 'e', 's'], '')
+    eq(testJoinString, 'apples');
+  },
+  'if there are arrays as elements, it should flatten those array and merge the arrays elements into the string': function() {
+    var testArray = ['dave', ['jim', 'bill'], ['kim', ['lim']]];
+    var testJoinString = join(testArray, '');
+    eq(testJoinString, 'davejimbillkimlim');
+  },
+  'if separator, it should use the operator in-between each merged element.': function() {
+    var testJoinString = join([1, 2, 3, 4], '-');
+    eq(testJoinString, '1-2-3-4');
+  },
+  'if separator is equal to a blank string, it should use no separator when merging elements': function() {
+    var testMap = new Map([['a', 2], ['b', 4], ['c', 8]]);
+    var testJoinString = join(testMap.keys(), '');
+    eq(testJoinString, 'abc');
+  },
+  'if no separator, it should the , character in-between each merged element.': function() {
+    var testString = "speedracer";
+    var testJoinString = join(testString, '!');
+    eq(testJoinString, 's!p!e!e!d!r!a!c!e!r')
+  },
+  'if array.length is 0, it should return a blank string': function() {
+    var testArray = [];
+    var testJoinString = join(testArray);
+    eq(testJoinString, '')
+  },
+  'if there is a blank array as an element, it should treat it as a blank string': function() {
+    var testArray = ['d', 'a', [], 'l', 'i'];
+    var testJoinString = join(testArray);
+    eq(testJoinString, 'd,a,,l,i');
+  },
+  'if an element is undefined, null, or an empty array, it should treat it as a blank string': function() {
+    var testArray = ['d', undefined, [], null, 's'];
+    var testJoinString = join(testArray);
+    eq(testJoinString, 'd,,,,s');
+  },
+});
+</script>
