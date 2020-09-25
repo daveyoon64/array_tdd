@@ -1,0 +1,134 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// Prototype Implememtation
+// function push(arraylike, ...elementN) {
+//   if (typeof(arraylike) === 'string') {
+//     throws new error;
+//   }
+//   if (Object.prototype.toString.call(arraylike) === '[object Arguments]') {
+//     throw new error;
+//   }
+//   if (!arraylike.hasOwnProperty(length)) {
+//     arraylike.length = 0;
+//   }
+//   if (!Number.isInteger(arraylike.length)) {
+//     arraylike.length = parseInt(arraylike.length);
+//     if (isNaN(arraylike.length)) { arraylike.length = 0; }
+//   }
+//   var endOfArraylike = arraylike.length;
+//   var indexesToAdd = endOfArraylike + elementN.length;
+//   var elementNPosition = 0;
+
+//   for (var i = endOfArraylike; i < indexesToAdd; i++) {
+
+//     arraylike[i] = elementN[elementNPosition];
+//     elementNPosition++;
+//   }
+//   arraylike.length = i; // h
+//   return i;
+// }
+// ## Function
+// push will mutute arraylike and add elementN elements to the end of the arraylike
+
+// ## Syntax
+// push(arraylike, ...elementN)
+
+// ## Parameters
+// arraylike
+// elementN
+
+// ## Returns
+// length of new arraylike object
+
+// Requirements
+// it should add elements from elementsN in order to the end of arraylike
+// it should work with any arraylike elements with the length property
+
+// it should push new elements based on the length property to determine where to start inserting
+// if length can't be converted to number, it should set length to 0
+// if length doesn't exist, it should create the property
+
+// if using a string arraylike, it should throw a TypeError
+// if usig an arguments object, it should throw a TypeError
+
+function push(arraylike, ...elementN) {
+  if (typeof(arraylike) === 'string') {
+    throw new TypeError('strings are immutable. cannot push');
+  }
+  if (Object.prototype.toString.call(arraylike) === '[object Arguments]') {
+    throw new TypeError('cannot push to arguments object');
+  }
+  if (!Number.isInteger(arraylike.length)) {
+    arraylike.length = parseInt(arraylike.length);
+    if (isNaN(arraylike.length)) { arraylike.length = 0; }
+  }
+  var endOfArraylike = arraylike.length;
+  var indexesToAdd = endOfArraylike + elementN.length;
+  var elementNPosition = 0;
+
+  for (var i = endOfArraylike; i < indexesToAdd; i++) {
+    arraylike[i] = elementN[elementNPosition];
+    elementNPosition++;
+  }
+  arraylike.length = i; // keeps length the right size
+  return i;
+}
+
+tests({
+  'it should add elements from elementsN in order to the end of arraylike': function() {
+    var testArray= [1, 2, 3, 4];
+    push(testArray, 777);
+    eq(testArray[4], 777);
+  },
+  'it should return the final size of the array after pushing': function() {
+    var testArray= [1, 2, 3, 4];
+    var finalSize = push(testArray, 777);
+    eq(finalSize, 5);
+  },
+  'it should work with any arraylike elements with the length property': function() {
+    var testArraylike = {name: 'Rocket', length: 0};
+    push(testArraylike, 'z');
+    eq(testArraylike[0], 'z');
+  },
+  'it should push new elements based on the length property to determine where to start inserting': function() {
+    var testArraylike = {name: 'Rocket', 0: 'z', 1: 'e', length: 2};
+    var finalSize = push(testArraylike, 'd');
+    eq(finalSize, 3);
+  },
+  'if length cannot be converted to number, it should set length to 0': function() {
+    var testArraylike = {name: 'Gamorah', length: 'WOO'};
+    var finalSize = push(testArraylike);
+    eq(testArraylike.length, 0);
+  },
+  'if length does not exist, it should create the property': function() {
+    var testArraylike = {name: 'Groot'};
+    var finalSize = push(testArraylike, 'Pakistan', 'Afghanistan');
+    eq(length in testArraylike, true);
+    eq(testArraylike.length, 2);
+  },
+  'if using a string arraylike, it should throw a TypeError': function() {
+    var isTypeError = false;
+    try {
+      push('dave', 'y')
+    } catch(e) {
+      isTypeError = (e instanceof TypeError);
+    }
+    eq(isTypeError, true);
+  },
+  'if usig an arguments object, it should throw a TypeError': function() {
+    var testArgs;
+    var isTypeError = false;
+    function argsTest(a, b, c) {
+      testArgs = arguments;
+    }
+    argsTest(1, 2, 3);
+    try {
+      push(testArgs, 4)	
+    } catch (e) {
+      isTypeError = (e instanceof TypeError)
+    }
+    eq(isTypeError, true);
+  },
+});
+</script>
