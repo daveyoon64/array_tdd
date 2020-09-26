@@ -1,0 +1,159 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// Prototype Implementation
+// function shift(arraylike) {
+//   var newArray = Array.from(arraylike);
+//   var indexToDelete = 0;
+//   var firstValue = newArray[indexToDelete];
+
+//   delete arraylike[indexToDelete];
+
+//   for (var i = 0; i < arraylike.length; i++) {
+//     filterInPlace(arraylike, function(value) {
+//       if (value) { return true; }
+//     });
+//   }
+//   return firstValue;
+// }
+// function filterInPlace(arraylike, callback) {
+//   let i = 0, j = 0;
+
+//   while (i < arraylike.length) {
+//     const val = arraylike[i];
+//     if (callback(val, i, arraylike)) arraylike[j++] = val;
+//     i++;
+//   }
+//   arraylike.length = j;
+// }
+
+// Summary
+// returns the first element of arraylike, reindexing, and updating arraylike.length
+
+// ## Syntax
+// shift(arraylike)
+
+// ## Parameters
+// arraylike object
+
+// ## Returns
+// first element of arraylike, undefined otherwise
+
+// Requirements
+// - it should return the first element of the arraylike
+// - if array is empty, it should return undefined
+// - it should remove the first element of the arraylike
+// - it should update arraylike.index.length
+// - it should be generic enough to use arraylike objects
+// - it should be generic enough to use with call()
+// - it should be generic enough to use with apply()
+// - it should not work on objects without a length property
+// - it should not work with strings
+// - it should not work with the arguments object
+
+// Notes
+// Bully! All the work I did in pop() made shift() reallllly easy.
+
+function shift(arraylike) {
+  if (typeof(arraylike) === 'string') {
+    throw new TypeError('strings are immutable. cannot push');
+  }
+  if (Object.prototype.toString.call(arraylike) === '[object Arguments]') {
+    throw new TypeError('cannot push to arguments object');
+  }
+  var newArray = Array.from(arraylike);
+  var indexToDelete = 0;
+  var firstValue = newArray[indexToDelete];
+
+  delete arraylike[indexToDelete];
+
+  filterInPlace(arraylike, function(value) {
+    if (value) return true;
+  });
+  return firstValue;
+}
+function filterInPlace(arraylike, callback) {
+  // i marches forward through the arraylike
+  // j moves forward only if there's a value
+  let i = 0, j = 0;
+
+  while (i < arraylike.length) {
+    const val = arraylike[i];
+    if (callback(val, i, arraylike)) arraylike[j++] = val;
+    i++;
+  }
+  if (arraylike.hasOwnProperty('length')) {
+    arraylike.length = j;
+  }
+}
+
+tests({
+  'it should return the first element of the arraylike': function() {
+    var testArray= [1, 2, 3, 4];
+    var testValue = shift(testArray);
+    eq(testValue, 1);
+  },
+  'if array is empty, it should return undefined': function() {
+    var testArray = [];
+    var finalValue = shift(testArray);
+    eq(finalValue, undefined);
+  },
+  'it should remove the first element of the arraylike': function() {
+    var testArray= [1, 2, 3, 4];
+    var testValue = shift(testArray);
+    eq(testArray[0], 2);
+  },
+  'it should update arraylike.index.length': function() {
+    var testArray= [1, 2, 3, 4];
+    var testValue = shift(testArray);
+    eq(testArray.length, 3);
+  },
+  'it should be generic enough to use arraylike objects': function() {
+    var myFish = {0:'clownfish', 1:'clown', 2:'mandarin', 3:'sturgeon', length: 4};
+    var testValue = shift(myFish);
+    eq(testValue, 'clownfish');
+    eq(myFish.length, 3);
+  },
+  'it should be generic enough to use with call()': function() {
+    var testArray = [1, 2, 3, 4];
+    var testValue = shift.call(null, testArray);
+    eq(testValue, 1);
+    eq(testArray.length, 3);
+  },
+  'it should be generic enough to use with apply()': function() {
+    var myFish = {0:'angel', 1:'clown', 2:'mandarin', 3:'sushi', length: 4};
+    var testValue = shift.apply(null, [myFish]);
+    eq(testValue , 'angel');
+    eq(myFish.length, 3);
+  },
+  'it should not work on objects without a length property': function() {
+    var myFish = {0:'angel', 1:'clown', 2:'mandarin', 3:'sturgeon'};
+    var testValue = shift(myFish);
+    eq(testValue, undefined);
+    eq(myFish.hasOwnProperty('length'), false);
+  },
+  'if using a string arraylike, it should throw a TypeError': function() {
+    var isTypeError = false;
+    try {
+      shift('dave', 'y')
+    } catch(e) {
+      isTypeError = (e instanceof TypeError);
+    }
+    eq(isTypeError, true);
+  },
+  'if using an arguments object, it should throw a TypeError': function() {
+    var testArgs;
+    var isTypeError = false;
+    function argsTest(a, b, c) {
+      testArgs = arguments;
+    }
+    argsTest(1, 2, 3);
+    try {
+      shift(testArgs, 4)	
+    } catch (e) {
+      isTypeError = (e instanceof TypeError)
+    }
+    eq(isTypeError, true);
+  },
+});
+</script>

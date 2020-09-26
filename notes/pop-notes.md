@@ -189,11 +189,8 @@ function pop(arraylike) {
 
   delete arraylike[indexToDelete];
 
-  debugger;
   filterInPlace(arraylike, function(value) {
-    if (value) { 
-      return true;
-    }
+    if (value) return true;
   });
   return lastValue;
 }
@@ -212,7 +209,6 @@ function filterInPlace(arraylike, callback) {
   arraylike.length = j;
 }
 ```
-
 ## Syntax
 pop(arraylike)
 
