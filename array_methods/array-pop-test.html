@@ -1,0 +1,158 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// Prototype Implementation
+// function pop(arraylike) {
+//   var newArray = Array.from(arraylike);
+//   var indexToDelete = newArray.length-1;
+//   var lastValue = newArray[indexToDelete];
+
+//   delete arraylike[indexToDelete];
+
+//   debugger;
+//   filterInPlace(arraylike, function(value) {
+//     if (value) { 
+//       return true;
+//     }
+//   });
+//   return lastValue;
+// }
+
+// function filterInPlace(arraylike, callback) {
+//   let i = 0, j = 0;
+
+//   while (i < arraylike.length) {
+//     const val = arraylike[i];
+//     if (callback(val, i, arraylike)) { 
+//       arraylike[j++] = val;
+//     }
+//     i++;
+//   }
+//   // you have to update length, or the empty value won't go away!!
+//   arraylike.length = j;
+// }
+
+// Summary
+// Returns last element of the arraylike and updates arraylike.length
+
+// Syntax
+// pop(arraylike)
+
+// Parameters
+// Any arraylike object with length. Cannot be a string or arguments object
+ 
+// Returns
+// last element of the arraylike
+// if not found returns undefined
+
+// Requirements
+// it should return the last element of the arraylike
+// if array is empty, it should return undefined
+// it should remove the last element of the arraylike
+// it should update arraylike.index.length
+// it should be generic enough to use arraylike objects
+// it should be generic enough to use with call()
+// it should be generic enough to use with apply()
+// it should not work on objects without a length property
+// it should not work with strings
+// it should not work with the arguments object
+
+// Notes
+// I was confused by how delete would leave indexes with empty values
+// So my protoype has a filterInPlace, which works, but is unneccessary
+// since updating the arraylike's length will chop off the last element
+// and deal with the empty value
+
+function pop(arraylike) {
+  if (typeof(arraylike) === 'string') {
+    throw new TypeError('strings are immutable. cannot push');
+  }
+  if (Object.prototype.toString.call(arraylike) === '[object Arguments]') {
+    throw new TypeError('cannot push to arguments object');
+  }
+  var newArray = Array.from(arraylike);
+  var indexToDelete = newArray.length-1;
+  var lastValue = newArray[indexToDelete];
+
+  delete arraylike[indexToDelete];
+
+  if (Object.keys(arraylike).length === 0) {
+    return lastValue;
+  }
+  if (arraylike.hasOwnProperty('length')) {
+    arraylike.length -= 1;
+  }
+  return lastValue;
+
+}
+
+tests({
+  'it should return the last element of the arraylike': function() {
+    var testArray= [1, 2, 3, 4];
+    var testValue = pop(testArray);
+    eq(testValue, 4);
+  },
+  'if array is empty, it should return undefined': function() {
+    var testArray = [];
+    var finalValue = pop(testArray);
+    eq(finalValue, undefined);
+  },
+  'it should remove the last element of the arraylike': function() {
+    var testArray= [1, 2, 3, 4];
+    var testValue = pop(testArray);
+    eq(testValue[3], undefined);
+  },
+  'it should update arraylike.index.length': function() {
+    var testArray= [1, 2, 3, 4];
+    var testValue = pop(testArray);
+    eq(testArray.length, 3);
+  },
+  'it should be generic enough to use arraylike objects': function() {
+    var myFish = {0:'angel', 1:'clown', 2:'mandarin', 3:'sturgeon', length: 4};
+    var testValue = pop(myFish);
+    eq(testValue, 'sturgeon');
+    eq(myFish.length, 3);
+  },
+  'it should be generic enough to use with call()': function() {
+    var testArray = [1, 2, 3, 4];
+    var testValue = pop.call(null, testArray);
+    eq(testValue, 4);
+    eq(testArray.length, 3);
+  },
+  'it should be generic enough to use with apply()': function() {
+    var myFish = {0:'angel', 1:'clown', 2:'mandarin', 3:'sushi', length: 4};
+    var testValue = pop.apply(null, [myFish]);
+    eq(testValue , 'sushi');
+    eq(myFish.length, 3);
+  },
+  'it should not work on objects without a length property': function() {
+    var myFish = {0:'angel', 1:'clown', 2:'mandarin', 3:'sturgeon'};
+    var testValue = pop(myFish);
+    eq(testValue, undefined);
+    eq(myFish.hasOwnProperty('length'), false);
+  },
+  'if using a string arraylike, it should throw a TypeError': function() {
+    var isTypeError = false;
+    try {
+      pop('dave', 'y')
+    } catch(e) {
+      isTypeError = (e instanceof TypeError);
+    }
+    eq(isTypeError, true);
+  },
+  'if using an arguments object, it should throw a TypeError': function() {
+    var testArgs;
+    var isTypeError = false;
+    function argsTest(a, b, c) {
+      testArgs = arguments;
+    }
+    argsTest(1, 2, 3);
+    try {
+      pop(testArgs, 4)	
+    } catch (e) {
+      isTypeError = (e instanceof TypeError)
+    }
+    eq(isTypeError, true);
+  },
+});
+</script>

@@ -50,7 +50,10 @@
 // if length doesn't exist, it should create the property
 
 // if using a string arraylike, it should throw a TypeError
-// if usig an arguments object, it should throw a TypeError
+// if using an arguments object, it should throw a TypeError
+
+// NOTE: after completing pop, I have a lot of ideas on how to make push
+// generic enough to support apply() and call(). I shall return!
 
 function push(arraylike, ...elementN) {
   if (typeof(arraylike) === 'string') {
@@ -116,7 +119,7 @@ tests({
     }
     eq(isTypeError, true);
   },
-  'if usig an arguments object, it should throw a TypeError': function() {
+  'if using an arguments object, it should throw a TypeError': function() {
     var testArgs;
     var isTypeError = false;
     function argsTest(a, b, c) {
