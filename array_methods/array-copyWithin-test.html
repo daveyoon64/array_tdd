@@ -1,0 +1,201 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// # Prototype Implementation
+
+// function copyWithin(array, target, start, end) {
+//   var copyStartPtr = start;
+//   var copyEndPtr = end;  
+//   // prevents overwrite when target > start
+//   var subArray = array.slice(copyStartPtr, copyEndPtr);
+
+//   var j = 0;
+//   for (var i = target; i < array.length; i++, j++) {
+//     array[i] = subArray[j];
+//     if (i === array.length - 1) break;
+//     if (j === subArray.length - 1) break;
+//   }
+//   return array;
+// }
+
+// ## Definition
+// copyWithin() shallow copies subarray in same array at target location
+
+// ## Parameters
+// - array
+// - target
+// - start
+// - end
+
+// ## Returns
+// reference to mutated array
+
+// ## Requirements
+// - Given target, it should shallow copy from position 0 to array.length, starting at array[target]
+
+// - If given start, it should shallow copy from position start to array.length, starting at array[target]
+// - If given start and end, it should shallow copy from position start to end, then will copy from start to end (max of arr.length)
+
+// - if target < 0, it should calculate position using array.length + target, then shallow copy starting at array[target]
+// - if target > arr.length, it should copy nothing
+// - if target is positioned after start, it should copy a sequence trimmed to fit arr.length
+
+// - if start < 0, it should calculate position using array.length + start
+// - if no start, it should start at index 0
+
+// - if end < 0, it should calculate position using array.length + end
+// - if no end, it should copy until the last index (default to arr.length)
+
+// - it should be generic to work with call
+// - it should be generic to work with apply
+
+// - it should not work with a string
+// - it should not work with an arguments object
+
+function copyWithin(array, target, start, end) {
+  if (typeof(array) === 'string') {
+    throw new TypeError('strings are immutable. cannot copyWithin');
+  }
+  if (Object.prototype.toString.call(array) === '[object Arguments]') {
+    throw new TypeError('cannot copyWithin arguments object');
+  }
+  var copyTargetPosition;
+  var copyStartPtr;
+  var copyEndPtr = end;
+
+  if (Number.isInteger(target)) {
+    copyTargetPosition = target;
+    if (target < 0) {
+      copyTargetPosition += array.length;
+    }
+  }
+  if (Number.isInteger(start)) {
+    copyStartPtr = start;
+    if (start < 0) {
+      copyStartPtr += array.length;
+    }
+  }
+  if (Number.isInteger(end)) {
+    copyEndPtr = end;
+    if (end < 0) {
+      copyEndPtr += array.length;
+    }
+  }
+  
+  // prevents overwrite when target > start
+  var subArray = array.slice(copyStartPtr, copyEndPtr);
+
+  var j = 0;
+  for (var i = copyTargetPosition; i < array.length; i++, j++) {
+    array[i] = subArray[j];
+    if (i === array.length - 1) break;
+    if (j === subArray.length - 1) break;
+  }
+  return array;
+}
+
+tests({
+  'Given target, it should shallow copy from position 0 to array.length, starting at target position': function() {
+    var testArray = [1, 2, 3, 4];
+    copyWithin(testArray, 2);
+    eq(testArray[2], 1);
+    eq(testArray[3], 2);
+  },
+  'If given start, it should shallow copy from position start to array.length, starting at target position': function() {
+    var testArray = [1, 2, 3, 4];
+    copyWithin(testArray, 2, 1);
+    eq(testArray[2], 2);
+    eq(testArray[3], 3);
+  },
+  'If given start and end, it should shallow copy from position start to end (exclusive), starting at target position (max of arr.length)': function() {
+    var testArray = [1, 2, 3, 4];
+    copyWithin(testArray, 0, 1, 2);
+    eq(testArray[0], 2);
+  },
+  'It should return a reference to original array': function() {
+    var testArray = [1, 2, 3, 4];
+    var returnArray = copyWithin(testArray, 2);
+    eq(testArray === returnArray, true);
+  },
+  'If target > array.length, it should copy nothing': function() {
+    var testArray = [1, 2, 3, 4];
+    copyWithin(testArray, 5);
+    eq(testArray[0], 1);
+    eq(testArray[1], 2);
+    eq(testArray[2], 3);
+    eq(testArray[3], 4);
+  },
+  'If target < 0, it should calculate position using array.length + target, then shallow copy starting at target position': function() {
+    var testArray = [1, 2, 3, 4];
+    copyWithin(testArray, -2);
+    eq(testArray[2], 1);
+    eq(testArray[3], 2);
+  },
+  'If target > start, it should copy a sequence trimmed to fit array.length': function() {
+    var testArray = [77, 2, 3, 4];
+    copyWithin(testArray, 3, 0);
+    eq(testArray[3], 77);
+  },
+  'If start < 0, it should calculate position using array.length + start': function() {
+    var testArray = [1, 2, 3, 4];
+    copyWithin(testArray, -2);
+    eq(testArray[2], 1);
+    eq(testArray[3], 2);
+  },
+  'If no start, it should start at index 0': function() {
+    var testArray = [1, 2, 3, 4];
+    copyWithin(testArray, 1);
+    eq(testArray[1], 1);
+    eq(testArray[2], 2);
+    eq(testArray[3], 3);
+  },
+  'If end < 0, it should calculate position using array.length + end': function() {
+    var testArray = [11, 22, 3, 4];
+    copyWithin(testArray, 2, -4);
+    eq(testArray[2], 11);
+    eq(testArray[3], 22);
+  },
+  'If no end, it should copy until the last index (default to arr.length)': function() {
+    var testArray = ['a', 'b', 'c', 'd'];
+    copyWithin(testArray, 1);
+    eq(testArray[1], 'a');
+    eq(testArray[2], 'b');
+    eq(testArray[3], 'c');
+  },
+  'It should be generic to work with call': function() {
+    var testArray = ['andy', 'bob', 'carl', 'dino'];
+    copyWithin.call(null, testArray, 2, 0, 2);
+    eq(testArray[2], 'andy');
+    eq(testArray[3], 'bob');
+  },
+  'It should be generic to work with apply': function() {
+    var testArray = ['hoops', 'outside', 'school', 'wow'];
+    copyWithin.apply(null, [testArray, 2, 0, 2]);
+    eq(testArray[2], 'hoops');
+    eq(testArray[3], 'outside');
+  },
+  'if using a string arraylike, it should throw a TypeError': function() {
+    var isTypeError = false;
+    try {
+      copyWithin('dave', 0, 1)
+    } catch(e) {
+      isTypeError = (e instanceof TypeError);
+    }
+    eq(isTypeError, true);
+  },
+  'if using an arguments object, it should throw a TypeError': function() {
+    var testArgs;
+    var isTypeError = false;
+    function argsTest(a, b, c) {
+      testArgs = arguments;
+    }
+    argsTest(1, 2, 3);
+    try {
+      copyWithin(testArgs, 0, 1)	
+    } catch (e) {
+      isTypeError = (e instanceof TypeError)
+    }
+    eq(isTypeError, true);
+  },
+});
+</script>
