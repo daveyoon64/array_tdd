@@ -1,0 +1,129 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// ## Prototype Implementation
+// function reverse(arraylike) {
+//   var leftPtr = 0;
+//   var rightPtr = arraylike.length - 1;
+
+//   while (leftPtr <= rightPtr) {
+//     var temp = arraylike[leftPtr];
+//     arraylike[leftPtr++] = arraylike[rightPtr];
+//     arraylike[rightPtr--] = temp;
+//   }
+//   return arraylike;
+// }
+
+// ## Description
+// reverse() reverse array in-place
+
+// ## Function Signature
+// reverse(arraylike)
+
+// ## Parameters
+// arraylike
+
+// ## Returns
+// reference to arraylike
+
+// ## Requirements
+// - it should mutate the arraylike by reversing the order of its elements
+// - it should return a reference to reversed array
+// - if arraylike is empty, it should return []
+// - it should be generic enough for call
+// - it should be generic enough for apply
+// - if it doesn't have a length property, it should not work
+// - it should reverse an arraylike object
+// - it should not reverse a string
+// - it should not reverse an arguments object
+
+function reverse(arraylike) {
+  if (typeof(arraylike) === 'string') {
+    throw new TypeError('strings are immutable. cannot reverse');
+  }
+  if (Object.prototype.toString.call(arraylike) === '[object Arguments]') {
+    throw new TypeError('cannot reverse arguments object');
+  }
+  var leftPtr = 0;
+  var rightPtr = arraylike.length - 1;
+
+  while (leftPtr <= rightPtr) {
+    var temp = arraylike[leftPtr];
+    arraylike[leftPtr++] = arraylike[rightPtr];
+    arraylike[rightPtr--] = temp;
+  }
+  return arraylike
+}
+
+tests({
+  'it should mutate the arraylike by reversing the order of its elements': function() {
+    var testArray = [1, 2, 3];
+    reverse(testArray);
+    eq(testArray[0], 3);
+    eq(testArray[1], 2);
+    eq(testArray[2], 1);
+  },
+  'it should return a reference to reversed array': function() {
+    var testArray = [1, 2, 3];
+    var returnArray = reverse(testArray);
+    eq(testArray === returnArray, true);
+  },
+  'if arraylike is empty, it should return []': function() {
+    var testArray = [];
+    var returnArray = reverse(testArray);
+    eq(Object.keys(returnArray).length, 0);
+    eq(Array.isArray(returnArray), true);
+  },
+  'it should be generic enough for call': function() {
+    var array = {0: 1, 1: 2, 2: 3, length: 3};
+    reverse.call(null, array);
+    eq(array[0], 3);
+    eq(array[1], 2);
+    eq(array[2], 1);
+  },
+  'it should be generic enough for apply': function() {
+    var array = {0: 11, 1: 22, 2: 33, length: 3};
+    reverse.apply(null, [array]);
+    eq(array[0], 33);
+    eq(array[1], 22);
+    eq(array[2], 11);
+  },
+  'if it does not have a length property, it should not work': function() {
+    var array = {0: 1, 1: 2, 2: 3};
+    reverse.call(null, array);
+    eq(array[0], 1);
+    eq(array[1], 2);
+    eq(array[2], 3);
+  },
+  'it should reverse an arraylike object': function() {
+    var array = {0: 'bill', 1: 'james', 2: 'baseball', length: 3};
+    reverse(array);
+    eq(array[0], 'baseball');
+    eq(array[1], 'james');
+    eq(array[2], 'bill');
+  },
+  'if using a string arraylike, it should throw a TypeError': function() {
+    var isTypeError = false;
+    try {
+      reverse('dave')
+    } catch(e) {
+      isTypeError = (e instanceof TypeError);
+    }
+    eq(isTypeError, true);
+  },
+  'if using an arguments object, it should throw a TypeError': function() {
+    var testArgs;
+    var isTypeError = false;
+    function argsTest(a, b, c) {
+      testArgs = arguments;
+    }
+    argsTest(1, 2, 3);
+    try {
+      reverse(testArgs)	
+    } catch (e) {
+      isTypeError = (e instanceof TypeError)
+    }
+    eq(isTypeError, true);
+  },
+});
+</script>
