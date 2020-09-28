@@ -1,0 +1,153 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// function unshift(arraylike, ...elementN) {
+//   var elementsToAdd = elementN.length;
+//   var startPosition = arraylike.length;
+
+//   // adds elementN.length elements to the arraylike
+//   for (var i = startPosition; i < startPosition + elementsToAdd; i++) {
+//     arraylike[i] = undefined;
+//   }
+
+//   arraylike.length = i;
+
+//   // shifts all values in arraylike to the right
+//   var searchPtr = startPosition - 1;
+//   var indexPtr = arraylike.length - 1;
+
+//   while (searchPtr >= 0) {
+//     arraylike[indexPtr--] = arraylike[searchPtr--];
+//   }
+
+//   // replaces the values in arraylike, starting from index 0
+//   if (indexPtr) {
+//     for (var i = 0; i < elementN.length; i++) {
+//       arraylike[i] = elementN[i];
+//     }
+//   }
+//   return arraylike.length
+// }
+// ## Definition
+// unshift() inserts elementN args into the beginning of the arraylike in order
+
+// ## Syntax
+// unshift(arraylike, elementN)
+
+// ## Parameters
+// arraylike
+// elementN
+
+// ## Returns
+// the new length of the expanded arraylike
+
+// ## Requirements
+// - it should insert elements from elementN in order, starting at position 0 of the arraylike
+// - if array is empty and elementN is empty, it should return 0
+// - it should update arraylike.length
+// - it should be generic enough to use arraylike objects
+// - it should be generic enough to use with call()
+// - it should be generic enough to use with apply()
+// - it should not work on objects without a length property
+// - it should not work with strings
+// - it should not work with the arguments object
+
+function unshift(arraylike, ...elementN) {
+  if (typeof(arraylike) === 'string') {
+    throw new TypeError('strings are immutable. cannot push');
+  }
+  if (Object.prototype.toString.call(arraylike) === '[object Arguments]') {
+    throw new TypeError('cannot push to arguments object');
+  }
+  var elementsToAdd = elementN.length;
+  var startPosition = arraylike.length;
+  // adds elementN.length elements to the arraylike
+  for (var i = startPosition; i < startPosition + elementsToAdd; i++) {
+    arraylike[i] = undefined;
+  }
+
+  if (startPosition) { arraylike.length = i; }
+
+  // shifts all values in arraylike to the right
+  var searchPtr = startPosition - 1;
+  var indexPtr = arraylike.length - 1;
+
+  while (searchPtr >= 0) {
+    arraylike[indexPtr--] = arraylike[searchPtr--];
+  }
+
+  // replaces the values in arraylike, starting from index 0
+  if (indexPtr !== undefined) {
+    for (var i = 0; i < elementN.length; i++) {
+      arraylike[i] = elementN[i];
+    }
+  }
+  return arraylike.length
+}
+
+tests({
+  'it should insert elements from elementN in order, starting at position 0 of the arraylike': function() {
+    var testArray= [1, 2, 3];
+    var testValue = unshift(testArray, 9);
+    eq(testValue, 4);
+    eq(testArray[0], 9)
+  },
+  'if array is empty and elementN is empty, it should return 0': function() {
+    var testArray = [];
+    var finalValue = unshift(testArray);
+    eq(finalValue, 0);
+  },
+  'it should update arraylike.index.length': function() {
+    var testArray= [1, 2, 3, 4];
+    var testValue = unshift(testArray, 77, 99);
+    eq(testArray.length, 6);
+  },
+  'it should be generic enough to use arraylike objects': function() {
+    var myFish = {0:'angel', 1:'clown', 2:'mandarin', 3:'sturgeon', length: 4};
+    var testValue = unshift(myFish, 'clownbaby');
+    eq(testValue, 5);
+    eq(myFish[0], 'clownbaby');
+  },
+  'it should be generic enough to use with call()': function() {
+    var testArray = [1, 2, 3, 4];
+    var testValue = unshift.call(null, testArray, 177)
+    eq(testValue, 5);
+    eq(testArray[0], 177);
+  },
+  'it should be generic enough to use with apply()': function() {
+    var myFish = {0:'angel', 1:'clown', 2:'mandarin', 3:'sushi', length: 4};
+    var testValue = unshift.apply(null, [myFish, 'IRONLUNG']);
+    eq(testValue , 5);
+    eq(myFish[0], 'IRONLUNG');
+  },
+  'it should not work on objects without a length property': function() {
+    var myFish = {0:'angel', 1:'clown', 2:'mandarin', 3:'sturgeon'};
+    var testValue = unshift(myFish, 'rick perry');
+    eq(testValue, undefined);
+    eq(myFish.hasOwnProperty('length'), false);
+  },
+  'if using a string arraylike, it should throw a TypeError': function() {
+    var isTypeError = false;
+    try {
+      unshift('dave', 'y')
+    } catch(e) {
+      isTypeError = (e instanceof TypeError);
+    }
+    eq(isTypeError, true);
+  },
+  'if using an arguments object, it should throw a TypeError': function() {
+    var testArgs;
+    var isTypeError = false;
+    function argsTest(a, b, c) {
+      testArgs = arguments;
+    }
+    argsTest(1, 2, 3);
+    try {
+      unshift(testArgs, 4)	
+    } catch (e) {
+      isTypeError = (e instanceof TypeError)
+    }
+    eq(isTypeError, true);
+  },
+});
+</script>

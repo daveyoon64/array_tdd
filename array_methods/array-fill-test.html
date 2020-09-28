@@ -1,0 +1,221 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// function fill(array, value, start, end) {
+//   var startPos;
+//   var endPos;
+
+//   if (Number.isInteger(start)) { 
+//     startPos = start;
+//     if (start < 0) startPos = array.length + start;
+//   } else if (start === undefined) {
+//     startPos = 0;
+//   }
+//   if (Number.isInteger(end)) { 
+//     endPos = end;
+//     if (end < 0) endPos = array.length + end;
+//     if (endPos > array.length) endPos = array.length;
+//   } else if (end === undefined) {
+//     endPos = array.length;
+//   }
+
+//   for (var i = startPos; i < endPos; i++) {
+//     array[i] = value;
+//   }
+//   return array;
+// }
+
+// ## Description
+// fill() changes elements in array to value provided
+// from start (position) to end (position) if specified
+// 0 to array.length if no specifie
+
+// ## Syntax
+// fill(value, start, end)
+
+// ## Parameters
+// array
+// value
+// start
+// end
+
+// ## Returns
+// Mutated array
+
+// ## Requirements
+// if given array and value, replace array elements with value
+// if given array, value and start, replace array elements starting at start
+// if given array, value, start, and end replace array elements from start to end (exclusive)
+
+// if given array and no value, it should replace elements with undefined
+// if array is empty, it should return []
+
+// if start < 0, calculate start position with array.length + start
+// if end < 0, calculate start position with array.length + end
+
+// It should mutate the original array
+// if value is an object, each slot in the array should reference that object
+// if start is undefined, it should replace start with 0
+// if end is undefined, it should replace end with array.length
+// if start or end are NaN or null, it should do nothing
+// if start > array.length, it should do nothing
+// if end > array.length, it should not affect array beyond array.length
+
+// it should be generic enough to use apply
+// it should be generic enough to use call
+
+function fill(arraylike, value, start, end) {
+  if (typeof(arraylike) === 'string') {
+    throw new TypeError('strings are immutable. cannot push');
+  }
+  if (Object.prototype.toString.call(arraylike) === '[object Arguments]') {
+    throw new TypeError('cannot push to arguments object');
+  }''
+
+  var startPos;
+  var endPos;
+
+  if (Number.isInteger(start)) { 
+    startPos = start;
+    if (start < 0) startPos = arraylike.length + start;
+    } else if (start === undefined) {
+      startPos = 0;
+  }
+  if (Number.isInteger(end)) { 
+    endPos = end;
+    if (end < 0) endPos = arraylike.length + end;
+    if (endPos > arraylike.length) endPos = arraylike.length;
+    } else if (end === undefined) {
+      endPos = arraylike.length;
+  }
+
+  for (var i = startPos; i < endPos; i++) {
+    arraylike[i] = value;
+  }
+  return arraylike
+}
+
+tests({
+  'if given array and value, replace array elements with value': function() {
+    var testArray = [1, 2];
+    fill(testArray, 7);
+    eq(testArray[0], 7);
+    eq(testArray[1], 7);
+  },
+  'if given array, value and start, replace array elements starting at start': function() {
+    var testArray = [1, 2, 3];
+    fill(testArray, 77, 1);
+    eq(testArray[1], 77);
+    eq(testArray[2], 77);
+  },
+  'if given array, value, start, and end replace array elements from start to end (exclusive)': function() {
+    var testArray = [1, 2, 3];
+    fill(testArray, 99, 1, 2);
+    eq(testArray[1], 99);
+    eq(testArray[2], 3);
+  },
+  'if given array and no value, it should replace elements with undefined': function() {
+    var testArray = [1, 2];
+    fill(testArray);
+    eq(testArray[0], undefined);
+    eq(testArray[1], undefined);
+  },
+  'if array is empty, it should return []': function() {
+    var testArray = [];
+    var returnArray = fill(testArray);
+    eq(returnArray.length, 0);
+  },
+  'if start < 0, calculate start position with array.length + start': function() {
+    var testArray = [1, 2, 3];
+    fill(testArray, 44, -1);
+    eq(testArray[2], 44);
+  },
+  'if end < 0, calculate start position with array.length + end': function() {
+    var testArray = [1, 2, 3];
+    fill(testArray, 22, -3, -2);
+    eq(testArray[0], 22);
+    eq(testArray[1], 2);
+    eq(testArray[2], 3);
+  },
+  'It should mutate the original array': function() {
+    var testArray = [];
+    var returnArray = fill(testArray);
+    eq(testArray === returnArray, true);
+  },
+  'if value is an object, each slot in the array should reference that object': function() {
+    var array = Array(3).fill({}); // [{}, {}, {}]
+    var array = fill(Array(3), {});
+    array[0].hi = "wassup";
+    eq(array[1].hi, 'wassup');
+    eq(array[2].hi, 'wassup');
+  },
+  'if start is undefined, it should replace start with 0': function() {
+    var testArray = [1, 2, 3];
+    fill(testArray, 11, undefined);
+    eq(testArray[0], 11);
+    eq(testArray[1], 11);
+    eq(testArray[2], 11);
+  },
+  'if end is undefined, it should replace end with array.length': function() {
+    var testArray = [1, 2, 3, 4];
+    fill(testArray, 111, 2, undefined);
+    eq(testArray[2], 111);
+    eq(testArray[3], 111);
+  },
+  'if start or end are NaN or null, it should do nothing': function() {
+    var testArray = [1, 2];
+    fill(testArray, 11, NaN, null);
+    eq(testArray[0], 1);
+    eq(testArray[1], 2);
+  },
+  'if start > array.length, it should do nothing': function() {
+    var testArray = [1, 2, 3];
+    fill(testArray, 777, 10);
+    eq(testArray[0], 1);
+    eq(testArray[1], 2);
+    eq(testArray[2], 3);
+  },
+  'if end > array.length, it should not affect array beyond array.length': function() {
+    var testArray = [1, 2, 3];
+    fill(testArray, 'party', 0, 50);
+    eq(testArray[0], 'party');
+    eq(testArray[1], 'party');
+    eq(testArray[2], 'party');
+    eq(testArray[3], undefined);
+  },
+  'it should be generic enough to use apply': function() {
+    var testObj = fill.apply(null, [{length: 2}, 192]);
+    eq(testObj[0], 192);
+    eq(testObj[1], 192);
+  },
+  'it should be generic enough to use call': function() {
+    var testObj = fill.call(null, {length: 3}, 4);
+    eq(testObj[0], 4)
+    eq(testObj[1], 4)
+    eq(testObj[2], 4)
+  },
+  'if using a string arraylike, it should throw a TypeError': function() {
+    var isTypeError = false;
+    try {
+      fill('dave', 'y')
+    } catch(e) {
+      isTypeError = (e instanceof TypeError);
+    }
+    eq(isTypeError, true);
+  },
+  'if using an arguments object, it should throw a TypeError': function() {
+    var testArgs;
+    var isTypeError = false;
+    function argsTest(a, b, c) {
+      testArgs = arguments;
+    }
+    argsTest(1, 2, 3);
+    try {
+      fill(testArgs, 4)	
+    } catch (e) {
+      isTypeError = (e instanceof TypeError)
+    }
+    eq(isTypeError, true);
+  },
+});
+</script>
