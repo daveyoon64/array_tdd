@@ -54,10 +54,10 @@
 
 function unshift(arraylike, ...elementN) {
   if (typeof(arraylike) === 'string') {
-    throw new TypeError('strings are immutable. cannot push');
+    throw new TypeError('strings are immutable. cannot unshift');
   }
   if (Object.prototype.toString.call(arraylike) === '[object Arguments]') {
-    throw new TypeError('cannot push to arguments object');
+    throw new TypeError('cannot unshift to arguments object');
   }
   var elementsToAdd = elementN.length;
   var startPosition = arraylike.length;

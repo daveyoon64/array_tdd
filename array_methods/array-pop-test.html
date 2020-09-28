@@ -65,10 +65,10 @@
 
 function pop(arraylike) {
   if (typeof(arraylike) === 'string') {
-    throw new TypeError('strings are immutable. cannot push');
+    throw new TypeError('strings are immutable. cannot pop');
   }
   if (Object.prototype.toString.call(arraylike) === '[object Arguments]') {
-    throw new TypeError('cannot push to arguments object');
+    throw new TypeError('cannot pop arguments object');
   }
   var newArray = Array.from(arraylike);
   var indexToDelete = newArray.length-1;

@@ -56,10 +56,10 @@
 
 function shift(arraylike) {
   if (typeof(arraylike) === 'string') {
-    throw new TypeError('strings are immutable. cannot push');
+    throw new TypeError('strings are immutable. cannot shift');
   }
   if (Object.prototype.toString.call(arraylike) === '[object Arguments]') {
-    throw new TypeError('cannot push to arguments object');
+    throw new TypeError('cannot shift arguments object');
   }
   var newArray = Array.from(arraylike);
   var indexToDelete = 0;
