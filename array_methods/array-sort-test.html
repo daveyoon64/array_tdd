@@ -1,0 +1,87 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// Prototype Implementation
+
+// function sort(array, callback) {  
+//   function divide(start, end) {
+//     if (start >= end) { return; }
+//     let mid = start;
+//     for( let i = start; i < end; i++) {
+//       if (array[i] < array[end]) {
+//         [array[i], array[mid]] = [array[mid], array[i]];
+//         mid++;
+//       }
+//     }
+//     [array[mid], array[end]] = [array[end], array[mid]];
+//     divide(start, mid - 1);
+//     divide(mid + 1, end);
+//   }
+
+//   divide(0, array.length - 1);
+//   return array;
+// }
+
+// Description
+// sort()sorts array elements in place and returns reference to mutated array
+
+// Function Signature
+// sort(array, callback)
+
+// Parameters
+// array
+// callback
+
+// Callback Parameters
+// elementA, elementB: the 2 elements we're comparing in the callback
+
+// Return
+// Reference to sorted array
+
+// Requirements
+// if no callback, it should convert elements to string, then sort according to unicode
+// if callback, array elements are sorted according to the return value of the callback
+// it should sort all undefined elements to the end of the array
+
+// if callback returns -1, elementA comes before elementB
+// if callback returns 0, elementA and elementB are unchanged
+// if callback returns 1, elementB comes before elementA
+
+// it should be able to sort objects using property values
+// it should handle non-ASCII characters
+// it should be able to sort using Array.prototype.map()
+
+function copyWithin(array, callback) {
+  return array;
+}
+
+tests({
+  '': function() {
+    fail();
+  },
+  '': function() {
+    fail();
+  },
+  '': function() {
+    fail();
+  },
+  '': function() {
+    fail();
+  },
+  '': function() {
+    fail();
+  },
+  '': function() {
+    fail();
+  },
+  '': function() {
+    fail();
+  },
+  '': function() {
+    fail();
+  },
+  '': function() {
+    fail();
+  },
+});
+</script>
