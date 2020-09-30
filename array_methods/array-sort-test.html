@@ -43,45 +43,162 @@
 // if callback, array elements are sorted according to the return value of the callback
 // it should sort all undefined elements to the end of the array
 
-// if callback returns -1, elementA comes before elementB
-// if callback returns 0, elementA and elementB are unchanged
-// if callback returns 1, elementB comes before elementA
+// if callback and elementA - elementB is less than 0, swap elementA and elementB.
+// if callback, and elementB - elementA is less than 0, swap elementB and elementA. 
+// if callback returns 0, elementA and elementB do not swap
 
 // it should be able to sort objects using property values
 // it should handle non-ASCII characters
 // it should be able to sort using Array.prototype.map()
 
-function copyWithin(array, callback) {
+function sort(array, callback) {
+  var isNaNCheck = false;
+  var defaultCallback = function(a, b) {
+    return a.toString() < b.toString();
+  }
+
+  function qsswap(start, pivot) {
+    if (start >= pivot) { return; }
+    let wall = start;
+
+    for ( var i = start; i < pivot; i++) {
+      if (array[i] === undefined) {
+        [array[i], array[pivot]] = [array[pivot], array[i]];
+        while (array[pivot] === undefined) { pivot--; }
+      }
+      
+      if (!callback) {
+        while (array[pivot] === undefined) { pivot--; }
+        if (defaultCallback(array[i], array[pivot])) {
+          [array[i], array[wall]] = [array[wall], array[i]];
+          wall++;
+        }
+      } else {
+        while (array[pivot] === undefined) { pivot--; }
+        isNaNCheck = callback(array[i], array[pivot]);
+        if (Number.isNaN(isNaNCheck)) {
+          isNaNCheck = true;
+          break;
+        }
+        if (typeof isNaNCheck === 'boolean') {
+          isNaNCheck = true;
+          break;
+        }
+        if (callback(array[i], array[pivot]) <= 0) {
+          [array[i], array[wall]] = [array[wall], array[i]];
+          wall++; 
+        }
+      }
+    }
+
+    if (!Number.isNaN(isNaNCheck) || !isNaNCheck) {
+      // now we want to move our wall it it's proper place!
+      [array[wall], array[pivot]] = [array[pivot], array[wall]];
+      // then recurse both sides!
+      qsswap(0, wall - 1);
+      qsswap(wall, pivot);
+    }
+  }
+  qsswap(0, array.length - 1);
   return array;
 }
 
 tests({
-  '': function() {
-    fail();
+  'if no callback, it should convert elements to string, then sort according to unicode': function() {
+    var testArray = [49, 5, 4100];
+    sort(testArray);
+    eq(testArray[0], 4100);
+    eq(testArray[1], 49);
+    eq(testArray[2], 5);
   },
-  '': function() {
-    fail();
+  'it should mutate the array in place': function() {
+    var testArray = [49, 5, 4100];
+    var returnArray = sort(testArray);
+    eq(testArray === returnArray, true);
   },
-  '': function() {
-    fail();
+  'if callback, array elements are sorted according to the return value of the callback': function() {
+    var testArray = [49, 5, 4100];
+    sort(testArray, function(a, b) { return a - b});
+    eq(testArray[0], 5);
+    eq(testArray[1], 49);
+    eq(testArray[2], 4100);
   },
-  '': function() {
-    fail();
+  'it should sort all undefined elements to the end of the array': function() {
+    var testArray = [49, undefined, 4100];
+    sort(testArray, function(a, b) { return b - a});
+    eq(testArray[0], 4100);
+    eq(testArray[1], 49);
+    eq(testArray[2], undefined);
   },
-  '': function() {
-    fail();
+  'if callback, and elementA - elementB is less than 0, swap elementA and elementB.': function() {
+    var testArray = [49, 5, 4100];
+    sort(testArray, function(a, b) { return a - b});
+    eq(testArray[0], 5);
+    eq(testArray[1], 49);
+    eq(testArray[2], 4100);
   },
-  '': function() {
-    fail();
+  'if callback, and elementB - elementA is less than 0, swap elementB and elementA. ': function() {
+    var testArray = [419, 78, 4100];
+    sort(testArray, function(a, b) { return b - a});
+    eq(testArray[0], 4100);
+    eq(testArray[1], 419);
+    eq(testArray[2], 78);
   },
-  '': function() {
-    fail();
+  'if callback returns 0, elementA and elementB do not swap': function() {
+    var testArray = sort([2000, 5, 2000], function(a, b) { return b - a})
+    eq(testArray[0], 2000);
+    eq(testArray[1], 2000);
+    eq(testArray[2], 5);
   },
-  '': function() {
-    fail();
+  'it should be able to sort objects using property values': function() {
+    var items = [
+      { name: 'Edward', value: 21 },
+      { name: 'Sharpe', value: 37 },
+      { name: 'And', value: 45 }
+    ];
+    sort(items, function(a, b) {
+      var nameA = a.name.toUpperCase();
+      var nameB = b.name.toUpperCase();
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+      return 0;
+    });
+    eq(items[0].name, 'And');
+    eq(items[1].name, 'Edward');
+    eq(items[2].name, 'Sharpe');
   },
-  '': function() {
-    fail();
+  'it should handle non-ASCII characters': function() {
+    var items = ['réservé', 'communiqué', 'café', 'adieu'];
+    sort(items, function (a, b) {
+      return a.localeCompare(b);
+    });
+    eq(items[0], 'adieu');
+    eq(items[1], 'café');
+    eq(items[2], 'communiqué');
+    eq(items[3], 'réservé');
+  },
+  'it should be able to sort using Array.prototype.map()': function() {
+    var list = ['Delta', 'alpha', 'CHARLIE', 'bravo'];
+    var mapped = list.map(function(el, i) {
+      return { index: i, value: el.toLowerCase() };
+    })
+    sort(mapped, function(a, b) {
+      if (a.value > b.value) {
+        return 1;
+      }
+      if (a.value < b.value) {
+        return -1;
+      }
+      return 0;
+    });
+    eq(mapped[0].value, 'alpha');
+    eq(mapped[1].value, 'bravo');
+    eq(mapped[2].value, 'charlie');
+    eq(mapped[3].value, 'delta');
   },
 });
 </script>

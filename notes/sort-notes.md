@@ -62,32 +62,90 @@ function compare(a, b) {
 - stop and thought about it some more, making diagrams..
 - i'm caught up with trying to fit what javascript does with my cookie cutter quicksort
 ```javascript
+// basic quicksort
 function sort(array, callback) { 
-  function divide(start, end) {
-    if (start >= end) { return; }
-    let mid = start;
-    for( let i = start; i < end; i++) {
-      if (array[i] < array[end]) {
-        [array[i], array[mid]] = [array[mid], array[i]];
-        mid++;
+
+  function qsswap(start, pivot) {
+    if (start >= pivot) { return; }
+    let wall = start;
+    for ( var i = start; i < pivot; i++) {
+      if (callback(array[i], array[pivot])) {
+        [array[i], array[wall]] = [array[wall], array[i]];
+        wall++; 
       }
     }
-    [array[mid], array[end]] = [array[end], array[mid]];
-    divide(start, mid - 1);
-    divide(mid + 1, end);
+    // now we want to move our wall it it's proper place!
+    [array[wall], array[pivot]] = [array[pivot], array[wall]];
+    // then recurse both sides!
+    qsswap(0, wall - 1);
+    qssswap(wall, pivot);
   }
-  divide(0, array.length - 1);
+  qsswap(0, array.length - 1);
   return array;
 }
 ```
-
+- the wall acts as the barrier for the values that are less than or greater than the pivot
+- the wall is incremented whenever a lower value is found
+- I'm stuck because I keep on using quicksort. Stopping that and thinking from the ground up
+- Finally figured it out. Somehow it got into my head that a + b should be descending, but it would never return less than 0. I finally stopped, questioned it, tested it, and saw that even the native sort doesn't deal with a+b
+- I need to challenge assumptions faster 
+- if array is mixed, a callback is provided, built-in sort will not even bother
+ 
 # Step 2
 ## Prototype Implementation
 ```javascript
 function sort(array, callback) {
-  // ???
+  var isNaNCheck = false;
+  var defaultCallback = function(a, b) {
+    return a.toString() < b.toString();
+  }
+
+  function qsswap(start, pivot) {
+    if (start >= pivot) { return; }
+    let wall = start;
+
+    for ( var i = start; i < pivot; i++) {
+      if (array[i] === undefined) {
+        [array[i], array[pivot]] = [array[pivot], array[i]];
+        while (array[pivot] === undefined) { pivot--; }
+      }
+      
+      if (!callback) {
+        while (array[pivot] === undefined) { pivot--; }
+        if (defaultCallback(array[i], array[pivot])) {
+          [array[i], array[wall]] = [array[wall], array[i]];
+          wall++;
+        }
+      } else {
+        while (array[pivot] === undefined) { pivot--; }
+        isNaNCheck = callback(array[i], array[pivot]);
+        if (Number.isNaN(isNaNCheck)) {
+          isNaNCheck = true;
+          break;
+        }
+        if (typeof isNaNCheck === 'boolean') {
+          isNaNCheck = true;
+          break;
+        }
+        if (callback(array[i], array[pivot]) <= 0) {
+          [array[i], array[wall]] = [array[wall], array[i]];
+          wall++; 
+        }
+      }
+    }
+
+    if (!Number.isNaN(isNaNCheck) || !isNaNCheck) {
+      // now we want to move our wall it it's proper place!
+      [array[wall], array[pivot]] = [array[pivot], array[wall]];
+      // then recurse both sides!
+      qsswap(0, wall - 1);
+      qsswap(wall, pivot);
+    }
+  }
+  qsswap(0, array.length - 1);
   return array;
 }
+
 ```
 ## Description
 sort()sorts array elements in place and returns reference to mutated array
@@ -107,13 +165,78 @@ Reference to sorted array
 
 ## Requirements
 - if no callback, it should convert elements to string, then sort according to unicode
+```javascript
+sort([49, 20, 5, 1000, 4100])
+// returns [1000, 20, 4100, 49, 5]
+```
 - if callback, array elements are sorted according to the return value of the callback
+```javascript
+sort([49, 20, 5, 1000, 4100], function(a, b) { return a - b})
+// returns [5, 20, 49, 1000, 4100]
+```
 - it should sort all undefined elements to the end of the array
-
-- if callback returns -1, elementA comes before elementB
-- if callback returns 0, elementA and elementB are unchanged
-- if callback returns 1, elementB comes before elementA
-
+```javascript
+sort([49, 20, 5, undefined, 4100], function(a, b) { return b - a})
+// returns [4100, 49, 20, 5, undefined]
+```
+- if callback, and elementA - elementB is less than 0, swap elementA and elementB.
+```javascript
+sort([20, 49, 5, 4100, 1000], function(a, b) { return a - b})
+// returns [5, 20, 49, 1000, 4100]
+```
+- if callback, and elementB - elementA is less than 0, swap elementB and elementA. 
+```javascript
+sort([2000, 5, 346, 16], function(a, b) { return b - a})
+// returns [2000, 346, 16, 5]
+```
+- if callback returns 0, elementA and elementB do not swap
+```javascript
+sort([2000, 5, 2000], function(a, b) { return b - a})
+// returns [2000, 2000, 5]
+```
 - it should be able to sort objects using property values
+```javascript
+var items = [
+  { name: 'Edward', value: 21 },
+  { name: 'Sharpe', value: 37 },
+  { name: 'And', value: 45 }
+];
+sort(items, function(a, b) {
+  var nameA = a.name.toUpperCase();
+  var nameB = b.name.toUpperCase();
+  if (nameA < nameB) {
+    return -1;
+  }
+  if (nameA > nameB) {
+    return 1;
+  }
+  return 0;
+});
+// 0: {name: "And", value: 45} 1: {name: "Edward", value: 21} 2: {name: "Magnetic", value: 13}
+```
 - it should handle non-ASCII characters
+```javascript
+var items = ['réservé', 'premier', 'communiqué', 'café', 'adieu', 'éclair'];
+sort(items, function (a, b) {
+  return a.localeCompare(b);
+});
+```
+
 - it should be able to sort using Array.prototype.map()
+```javascript
+var list = ['Delta', 'alpha', 'CHARLIE', 'bravo'];
+
+var mapped = list.map(function(el, i) {
+  return { index: i, value: el.toLowerCase() };
+})
+sort(mapped, function(a, b) {
+  if (a.value > b.value) {
+    return 1;
+  }
+  if (a.value < b.value) {
+    return -1;
+  }
+  return 0;
+});
+// 0: {index: 1, value: "alpha"} 1: {index: 3, value: "bravo"} 2: {index: 2, value: "charlie"} 3: {index: 0, value: "delta"}
+```
