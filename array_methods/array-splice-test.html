@@ -1,0 +1,234 @@
+<script src="../simpletest.js"></script>
+<script>
+
+// Prototype Implementation
+// function splice(array, start, deleteCount, ...items) { 
+//   var startPos = start;
+//   var elementsToDelete = deleteCount;
+//   var deleted = [];
+//   // loop through from start to deleteCount...
+//   for (var i = startPos; i < startPos + elementsToDelete; i++) {
+//     deleted.push(array[i]);
+//     delete array[i];
+//   }
+//   // case: deleteCount > array slots
+//   // case: delete N elements, but need to insert N + items.length into array
+//   // should I reindex it everytime? or only reindex just once?
+//   for (var j = 0; j < items.length - deleted.length; j++) {
+//    array.push(undefined);
+//   }
+//   return deleted;
+// }
+// ```
+
+// Definition
+// splice() changes contents of array by removing or replacing existing elements, and/or adding new elements in-place
+
+// Syntax
+// splice(array, start, deleteCount, ...items)
+
+// Parameters
+// array
+// start
+// deleteCount
+// ...items
+
+// Returns
+// Array with deleted items (might need delete?)
+
+// Requirements
+// if there is no start, it should return a []
+// if start and deleteCount removes 1 element, it should return an array with that 1 element
+// if start is 0 and no deleteCount, it should remove all elements from array
+
+// if start > array.length, it should be set to array.length
+// if start < 0, it should calculate array.length + start and use the calculated index
+// if start < 0 after calculation, it should set start to 0
+
+// if deleteCount is larger than the remaining array elements, it should set deleteCount to array.length - start
+// if deleteCount < 0, it should set deleteCount to 0
+
+// if given start, it should remove elements from start to the end of the array.
+// if given start and deleteCount, it should remove elements from start to start + deleteCount
+// if given start and deleteCount is 0, it should remove no elements
+// it should return an array with all deleted elements
+// it should modify the array in-place
+
+// if given start, deleteCount, and items, it should remove elements from start to start + deleteCount and insert items elements
+// if given start and deleteCount within the array, it should remove elements from start to start + deleteCount, then insert items elements, and not affect existing elements
+// if start > array.length, it should not remove any elements and append items to the array
+function splice(array, start, deleteCount, ...items) {
+  var startPos = start;
+  var elementsToDelete;
+  var deleted = [];
+
+  if (start > array.length) {
+    startPos = array.length;
+  } else if (start < 0) {
+    startPos = array.length + start;
+  }
+  if (startPos < 0) { startPos = 0;}
+
+  if (deleteCount || deleteCount === 0) {
+    elementsToDelete = deleteCount;
+    if (elementsToDelete >= array.length - startPos) {
+      elementsToDelete = array.length - startPos;
+    }
+  } else {
+    elementsToDelete = array.length - startPos;
+  }
+  if (elementsToDelete < 0) { elementsToDelete = 0; }
+  // delete from start to start + deleteCount
+  for (var i = startPos; i < startPos + elementsToDelete; i++) {
+    deleted.push(array[i]);
+    delete array[i];
+  }
+  // if there are more items than deleteCount:
+  if (items.length > deleted.length) {
+    for (var j = 0; j < items.length - deleted.length; j++) {
+      array.push(undefined);
+    }
+  }
+  // move everything from startPos to the right
+  var undefinedCheck = 0;
+  var slowPtr = array.length - 1; // only moves forward when condition met
+  var fastPtr = array.length - 1; // our traversal pointer
+  while (array[fastPtr] === undefined) { // move fastPtr to first truthy value
+    fastPtr--;
+    undefinedCheck++; 
+    if (fastPtr < 0) { break; } 
+  }
+  while (fastPtr >= startPos) {
+    array[slowPtr--] = array[fastPtr--];
+    if (fastPtr < 0) break;
+  }
+  //insert items into array
+  for (var k = 0, j = startPos; k < items.length; j++, k++) {
+    array[j] = items[k];
+  }
+
+  if (array[0] === undefined && undefinedCheck !== array.length) {
+    // remove all undefineds left of the value
+    var slowPtr = 0; // only moves forward when condition met
+    var fastPtr = 0; // our traversal pointer
+    // move fastPtr to first truthy value
+    while (array[fastPtr] === undefined) {
+      fastPtr++;
+    }
+    while (fastPtr < array.length) {
+      array[slowPtr++] = array[fastPtr];
+      array[fastPtr++] = undefined;
+    }
+  }
+  // remove all undefineds right of the values
+  if (array.includes(undefined)) { 
+    var arrayEnd = array.length - 1;
+    while (array[arrayEnd] === undefined) {
+      arrayEnd--;
+      if (arrayEnd < 0 ) break;
+    }
+    array.length = arrayEnd + 1;
+  }
+  return deleted;
+}
+
+
+tests({
+  'if there is no start, it should return a []': function() {
+    var testArray = splice([1, 2, 3, 4]);
+    eq(testArray.length, 0);
+  },
+  'if given start, it should remove elements from start to the end of the array.': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, 1);
+    eq(testArray[0], 2); // deleted element
+    eq(testArray[1], 3); // deleted element
+    eq(testArray[2], 4); // deleted element
+    eq(originalArray[0], 1)
+  },
+  'if given start and deleteCount, it should remove elements from start to start + deleteCount': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, 0, 2);
+    eq(testArray[0], 1); // deleted element
+    eq(testArray[1], 2); // deleted element
+    eq(originalArray[0], 3);
+    eq(originalArray[1], 4);
+  },
+  'if start and deleteCount removes 1 element, it should return an array with that 1 element': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, 3);
+    eq(testArray[0], 4); // deleted element
+  },
+  'if given start and deleteCount is 0, it should remove no elements': function() {
+    var originalArray = ['dave', 'bill'];
+    var testArray = splice(originalArray, 0, 0);
+    eq(testArray.length, 0);
+    eq(originalArray[0], 'dave');
+    eq(originalArray[1], 'bill');
+  },
+  'if given, start and deleteCount, it should return an array with all the deleted elements': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, 1, 3);
+    eq(Array.isArray(testArray), true);
+    eq(testArray[0], 2);
+    eq(testArray[1], 3);
+    eq(testArray[2], 4);
+  },
+  'if start is 0 and no deleteCount, it should remove all elements from array': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, 0);
+    eq(testArray.length, 4);
+    eq(originalArray.length, 0);
+  },
+  'if start > array.length, it should be set to array.length': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, 5);
+    eq(testArray.length, 0);
+    eq(originalArray.length, 4);
+  },
+  'if start < 0, it should calculate array.length + start and use the calculated index': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, -2);
+    eq(testArray.length, 2);
+    eq(originalArray.length, 2);
+  },
+  'if start < 0 after calculation, it should set start to 0': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, -5);
+    eq(testArray.length, 4);
+    eq(originalArray.length, 0);
+  },
+  'if deleteCount is larger than the remaining array elements, it should set deleteCount to array.length - start': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, 2, 10);
+    eq(testArray.length, 2);
+    eq(testArray[0], 3);
+    eq(testArray[1], 4);
+    eq(originalArray.length, 2);
+  },
+  'if deleteCount < 0, it should set deleteCount to 0': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, 2, -4);
+    eq(testArray.length, 0);
+    eq(originalArray.length, 4);
+  },
+  'if given start, deleteCount, and items, it should remove elements from start to start + deleteCount and insert items elements': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, 3, 1, 77, 88, 99);
+    eq(testArray.length, 1);
+    eq(originalArray.length, 6);
+  },
+  'if given start and deleteCount within the array, it should remove elements from start to start + deleteCount, then insert items elements, and not affect existing elements': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, 1, 2, 77, 88, 99);
+    eq(testArray.length, 2);
+    eq(originalArray.length, 5);
+  },
+  'if start > array.length, it should not remove any elements and append items to the array': function() {
+    var originalArray = [1, 2, 3, 4];
+    var testArray = splice(originalArray, 100, 2, 77, 88, 99);
+    eq(testArray.length, 0);
+    eq(originalArray.length, 7);
+  },
+});
+</script>
