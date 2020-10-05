@@ -150,7 +150,7 @@ function splice(array, start, deleteCount, ...items) {
     // move fastPtr to first truthy value
     while (array[fastPtr] === undefined) {
       fastPtr++;
-    }
+    
     while (fastPtr < array.length) {
       array[slowPtr++] = array[fastPtr];
       array[fastPtr++] = undefined;

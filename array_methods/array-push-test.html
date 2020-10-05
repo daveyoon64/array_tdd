@@ -3,19 +3,6 @@
 
 // Prototype Implememtation
 // function push(arraylike, ...elementN) {
-//   if (typeof(arraylike) === 'string') {
-//     throws new error;
-//   }
-//   if (Object.prototype.toString.call(arraylike) === '[object Arguments]') {
-//     throw new error;
-//   }
-//   if (!arraylike.hasOwnProperty(length)) {
-//     arraylike.length = 0;
-//   }
-//   if (!Number.isInteger(arraylike.length)) {
-//     arraylike.length = parseInt(arraylike.length);
-//     if (isNaN(arraylike.length)) { arraylike.length = 0; }
-//   }
 //   var endOfArraylike = arraylike.length;
 //   var indexesToAdd = endOfArraylike + elementN.length;
 //   var elementNPosition = 0;
@@ -109,6 +96,18 @@ tests({
     var finalSize = push(testArraylike, 'Pakistan', 'Afghanistan');
     eq(length in testArraylike, true);
     eq(testArraylike.length, 2);
+  },
+  'it should be generic enough to be used with call': function() {
+    var testArraylike = {name: 'Taliyah', 0: 'z', 1: 'e', length: 2};
+    var finalSize = push.call(null, testArraylike, 'm');
+    eq(finalSize, 3);
+    eq(testArraylike[2], 'm');
+  },
+  'it should be generic enough to be used with apply': function() {
+    var testArraylike = {name: 'Kindred', 0: 'r', 1: 'e', length: 2};
+    var finalSize = push.apply(null, [testArraylike, 'd']);
+    eq(finalSize, 3);
+    eq(testArraylike[2], 'd');
   },
   'if using a string arraylike, it should throw a TypeError': function() {
     var isTypeError = false;

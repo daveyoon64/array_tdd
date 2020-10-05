@@ -65,6 +65,7 @@ function join(arraylike, separator) {
   var newString = '';
 
   // helper inner function for array within array
+  // this can also be done with toString()
   function arrayHelper(array, pos){
     if (pos > array.length - 1) { return; } // base case
     if (pos !== 0) {
@@ -125,7 +126,7 @@ tests({
     var testJoinString = join(testMap.keys(), '');
     eq(testJoinString, 'abc');
   },
-  'if no separator, it should the , character in-between each merged element.': function() {
+  'if no separator, it should use the , character in-between each merged element.': function() {
     var testString = "speedracer";
     var testJoinString = join(testString, '!');
     eq(testJoinString, 's!p!e!e!d!r!a!c!e!r')
